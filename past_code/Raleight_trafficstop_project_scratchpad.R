@@ -8,14 +8,13 @@ library(gt)
 library(gtsummary)
 library(units)
 
-# Load and check varlabies
+# Load and check variables
 load_variables(year = 2022, dataset = "acs5") |> count(geography)
 acs_vars = load_variables(year = 2022, dataset = "acs5")
 acs_topics = acs_vars |> count(concept, geography)
 acs_topics |> filter(concept |> str_detect("Black")) |> print(n=Inf)
 # Hispanic or Latino Origin by Race 
 acs_vars |> filter(concept == "Hispanic or Latino Origin by Race") # B03002_001 
-# Poverty Status in the Past 12 Months by Age
 # Poverty Status in the Past 12 Months by Age
 acs_vars |> filter(concept == "Poverty Status in the Past 12 Months by Age") # B03002_001 
 #  Means of Transportation to Work (White Alone, Not Hispanic or Latino)    
