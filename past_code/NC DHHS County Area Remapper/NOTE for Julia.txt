@@ -1,0 +1,4 @@
+NOTE - these files won't RUN without their underlying data, but may still be useful motivating code.
+
+Personally I'd suggest developing in an R Script first to have the benefit of the code and environment, then promote the parts you
+need interactive to the markdown, then shiny app. Let's take a look next week!
