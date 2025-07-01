@@ -42,7 +42,7 @@ nc_county_sf = nc_county_sf |> select(GEOID, NAME) |> left_join(acs_data_tbl)
 nc_county_sf |> st_geometry() |> plot()
 
 # Cities ####
-nc_city_sf = get_acs("place", year = 2022, variables = acs_var_tbl$variable, geometry = T, state = "NC")
+nc_city_sf = get_acs("place", year = 2023, variables = acs_var_tbl$variable, geometry = T, state = "NC")
 acs_data_tbl = get_acs("place", year = 2022, variables = acs_var_tbl$variable, state = "NC") |> 
   left_join(acs_var_tbl) |> select(GEOID, group, estimate) |> pivot_wider(names_from = group, values_from = estimate)
 nc_city_sf = nc_city_sf |> slice_max(order_by = estimate, n = 20)
