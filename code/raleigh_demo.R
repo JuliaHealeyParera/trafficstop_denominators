@@ -3,8 +3,10 @@ library(tidycensus)
 library(sf)
 library(units)
 
-#Read in custom shape file
-police_raleigh <- st_read('data/currpolicedist_files/current_policedistricts.shp') |>
+#Load current_policedistricts
+source('code/update_policedist_shpfiles.R')
+#No need to append for Raleigh (one of 3 original shp files)
+police_raleigh <- current_policedistricts |>
   filter(city == "raleigh") 
 police_swd_raleigh <- police_raleigh |>
   filter(DISTRICT == "SWD")
