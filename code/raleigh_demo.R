@@ -167,6 +167,6 @@ all_dist_whitenh_perc <- ggplot(police_final, aes(geometry = geometry, fill = as
   labs(title = "Southwest Raleigh has the second highest proportion\nof White residents in the city.", 
        subtitle  = "Northwest Raleigh is the highest, with a 70% White population.",
        fill = "Percent of District\n(White, non-Hispanic)")
-ggsave('plots/swd_raleigh/all_dist_whitenh_perc.png', all_dist_whitenh_perc)
+ggsave('plots/swd_raleigh/all_dist_whitenh_perc_8.png', all_dist_whitenh_perc)
 
 
