@@ -81,29 +81,20 @@ police_dist_census_blocks <- ggplot() +
 
 ggsave('plots/charlotte/police_district_bg.png', police_dist_census_blocks)
 
+
 #Start ethnicity recalculations
+source('code/bg_to_policedist.R')
+
 charlotte_data_tbl <- charlotte_data_tbl |> 
   mutate(bg_full_area = st_area(geometry)) 
 police_charlotte <- police_charlotte |> 
   mutate(policedist_full_area = st_area(geometry)) |>
   st_make_valid(police_charlotte) #Need this line, otherwise police_charlotte fails st_is_valid()
                            #Check with: st_is_valid(police_charlotte), st_is_valid(charlotte_data_tbl)
-
-clt_intersection_sf = charlotte_data_tbl |> st_intersection(police_charlotte) #Areas of intersection in geometry column
-clt_intersection_sf <- clt_intersection_sf|> 
-  mutate(intersection_area = st_area(geometry),
-         bg_perc_area = intersection_area / bg_full_area,
-         police_perc_area = intersection_area / policedist_full_area) |>
-  mutate(across(matches("Total|nH|Hispanic"), ~ .x * bg_perc_area)) #Recalculate ethnicity columns to be intersection-specific
-#Charlotte's highest police_perc_area is for GEOID 371199801001, which is airport district (pop = 0)
-
+#Select block groups in relevant police districts, convert units to be police-district (intersection) specific
+clt_intersection_sf <- bgtbl_to_bgsf(charlotte_data_tbl, police_charlotte)
 #Convert from block group unit to police district unit
-policdist_final <- clt_intersection_sf |> 
-  group_by(DNAME) |>
-  summarize(across(matches("Total|nH|Hispanic"), ~ sum(.x))) |> #Counts by ethnic group
-  mutate(across(matches("nH|Hispanic"), ~ .x/Total, .names = "{.col}_perc")) |> #Percentages (of district) by ethnic group
-  #Round counts and percentages post-calculation so percentages are not calculated with rounded numerators
-  mutate(across(matches("nH|Hispanic"), ~ round(.x, 3)))
+policdist_final <- bgsf_to_poldistsf(clt_intersection_sf)
 
 #Demographic specific choropleth map (by police district)
 population_blacknH <- ggplot(policdist_final, aes(geometry = geometry, fill = as.vector(Black_nH))) + 

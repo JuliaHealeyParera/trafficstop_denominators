@@ -18,10 +18,10 @@ acs_var_tbl = tribble(
 )
 
 #Get block group names for post-pivoting
-nc_bg_sf = get_acs("block group", year = 2023, variables = "B03002_001", geometry = T, state = "NC") |>
+nc_bg_sf = get_acs("block group", year = 2022, variables = "B03002_001", geometry = T, state = "NC") |>  #2022 FOR 7/14
   select(GEOID, NAME) 
 #Get specified ethnicity variables per block group
-acs_data_tbl = get_acs("block group", year = 2023, variables = acs_var_tbl$variable, state = "NC") |> 
+acs_data_tbl = get_acs("block group", year = 2022, variables = acs_var_tbl$variable, state = "NC") |> 
   left_join(acs_var_tbl) |> 
   select(GEOID, group, estimate) |> 
   pivot_wider(names_from = group, values_from = estimate) |> #Pivot so each ethnicity is a var.
@@ -32,6 +32,6 @@ st_geometry(acs_data_tbl) <- acs_data_tbl$geometry #Assert that geometry is inte
 acs_data_tbl <- st_transform(acs_data_tbl, 2264) #Convert to state plane
 
 #Hard-downloaded because of issues with census, replace later with API call
-nc_bg_sf = get_acs("place", year = 2023, variables = "B03002_001", geometry = T, state = "NC") |>
+nc_bg_sf = get_acs("place", year = 2022, variables = "B03002_001", geometry = T, state = "NC") |>
   select(GEOID, NAME, geometry) |>
   st_transform(2264)

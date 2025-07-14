@@ -13,10 +13,10 @@ ui = fluidPage(
 )
 
 server = function(input, output, session) {
-  read_shp() <- reactive{(
-    st_read(input$spatial_file)
-  )}
-  
+  # #read_shp() <- reactive{(
+  #   st_read(input$spatial_file)
+  # )}
+  # 
   output$map <- renderUI({
     
   })
@@ -65,4 +65,4 @@ server = function(input, output, session) {
 #   ##necessary to make everything reactive? should only re-render if user fully resets inputs
 #   })
 # 
-# shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server)

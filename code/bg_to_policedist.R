@@ -1,0 +1,43 @@
+bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
+  bg_sf = bg_tbl |> 
+    st_intersection(poldist_sf) |> #Areas of intersection in geometry column 
+  mutate(
+      intersection_area = st_area(geometry),
+      bg_perc_area = intersection_area / bg_full_area,
+      police_perc_area = intersection_area / policedist_full_area
+      ) |>
+    mutate(
+      across(
+        matches("Total|nH|Hispanic"),
+        ~ .x * bg_perc_area
+        )
+      ) #Recalculate ethnicity columns to be intersection-specific
+}
+
+bgsf_to_poldistsf <- function(bg_sf) {
+  policedist_sf <- bg_sf |> 
+    group_by(DNAME) |>
+    summarize(
+      across(
+        matches("Total|nH|Hispanic"), 
+        ~ sum(.x)
+        )
+      ) |> #Counts by ethnic group
+    mutate(
+      across(
+        matches("nH|Hispanic"), 
+        ~ .x/Total, 
+        .names = "{.col}_perc"
+        )
+      ) |> #Percentages (of district) by ethnic group
+    #Round counts and percentages post-calculation so percentages are not calculated with rounded numerators
+    mutate(
+      across(
+        matches("nH|Hispanic"), 
+        ~ round(.x, 3)
+        )
+      )
+  
+  return(policedist_sf)
+}
+
