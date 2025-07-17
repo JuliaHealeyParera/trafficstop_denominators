@@ -14,13 +14,14 @@ police_raleigh <- current_policedistricts |>
 police_swd_raleigh <- police_raleigh |>
   filter(DISTRICT == dist)
 
+source('code/map_generator.R')
 #Introductory map 1: All Raleigh districts
-police_dist <- police_district_map(police_raleigh, 'raleigh')
+police_dist_map <- police_district_map(police_raleigh, 'raleigh')
 #Introductory map 1 (EXTRA): Zoom-in on SWD of Raleigh
-police_swd <- police_district_map(police_swd_raleigh, 'southwest raleigh')
+police_swd_dist_map <- police_district_map(police_swd_raleigh, 'southwest raleigh')
 #Save maps
-ggsave('plots/swd_raleigh/all_raleigh_districts_1.png', police_dist)
-ggsave('plots/swd_raleigh/swd_raleigh_district_extra.png', police_swd)
+ggsave('plots/swd_raleigh/all_raleigh_districts_1.png', police_dist_map)
+ggsave('plots/swd_raleigh/swd_raleigh_district_extra.png', police_swd_dist_map)
 
 #Load census data
 source('code/census_data.R')
@@ -41,85 +42,12 @@ raleigh_tbl <- bg_dist_subset(acs_data_tbl, police_raleigh)
 raleigh_swd_long <- pivot_long_tidy(raleigh_swd_tbl)
 raleigh_long <- pivot_long_tidy(raleigh_tbl) 
 
-#SWD block groups
-#TODO: Adjust label of minimum population region to be outside of map 
-total_citywide_count <- raleigh_long |> filter(Group == 'Total') |> pull(Count) 
-total_max_min_populations_citywide <- raleigh_long |> 
-  filter(
-    Group == "Total",
-    Count %in% c(
-      max(total_citywide_count), 
-      min(total_citywide_count[total_citywide_count > 5])
-      )
-    )
-
-population_all_citywide <- ggplot() + 
-  geom_sf(
-    data = raleigh_long |> 
-      filter(Group == "Total"), 
-    aes(geometry = geometry, fill = Count), 
-    alpha = .65
-    ) + 
-  geom_sf(
-    data = total_max_min_populations_citywide, 
-    aes(geometry = geometry), 
-    fill = NA, 
-    color = "black", 
-    linewidth = .75
-    ) +
-  scale_fill_distiller(palette = "Blues", direction = 1) + 
-  geom_sf_label(data = total_max_min_populations_citywide, aes(label = Count)) + 
-  theme_void() +
-  labs(
-    title = paste0(
-      "Raleigh's census neighborhoods range\nfrom ", 
-      max(total_citywide_count),
-      " to ", 
-      min(total_citywide_count[total_citywide_count > 5]),
-      " residents."),
-    subtitle = "Census neighborhoods are unevenly populated.",
-    fill = "Population")
-
-total_swd_count <- raleigh_swd_long |> filter(Group == 'Total') |> pull(Count) 
-total_max_min_populations <- raleigh_swd_long |> 
-  filter(
-    Group == "Total",
-    Count %in% c(
-      max(total_swd_count), 
-      min(total_swd_count)
-    )
-  )
-
-population_all <- ggplot() + 
-  geom_sf(
-    data = raleigh_swd_long |> 
-      filter(Group == "Total"), 
-    aes(geometry = geometry, fill = Count), 
-    alpha = .65
-  ) + 
-  geom_sf(
-    data = total_max_min_populations, 
-    aes(geometry = geometry), 
-    fill = NA, 
-    color = "black", 
-    linewidth = .75
-  ) +
-  scale_fill_distiller(palette = "Blues", direction = 1) + 
-  geom_sf_label(data = total_max_min_populations, aes(label = Count)) + 
-  theme_void() +
-  labs(
-    title = paste0(
-      "Southwest Raleigh's census neighborhoods range\nfrom ", 
-      max(total_swd_count),
-      " to ", 
-      min(total_swd_count),
-      " residents."),
-    subtitle = "Census neighborhoods are unevenly populated.",
-    fill = "Population")
-
+#Block group population maps 
+swd_raleigh_bg_pop_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh')
+raleigh_bg_pop_map <- bg_population_map(raleigh_long, 'raleigh')
 #Save maps
-ggsave('plots/swd_raleigh/swd_bg_totalpop_2.png', population_all)
-ggsave('plots/swd_raleigh/bg_totalpop_2_alt.png', population_all_citywide)
+ggsave('plots/swd_raleigh/swd_raleigh_bg_pop_2.png', swd_raleigh_bg_pop_map)
+ggsave('plots/swd_raleigh/raleigh_bg_pop_alt.png', raleigh_bg_pop_map)
 
 #Black non-Hispanic plot
 blacknh_swd_count <- raleigh_swd_long |> filter(Group == 'B_nH') |> pull(Count) 
