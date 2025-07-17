@@ -8,7 +8,7 @@ bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
       ) |>
     mutate(
       across(
-        matches("Total|nH|Hispanic"),
+        matches("Total|nH|Hispan"),
         ~ .x * bg_perc_area
         )
       ) #Recalculate ethnicity columns to be intersection-specific
@@ -19,13 +19,13 @@ bgsf_to_poldistsf <- function(bg_sf) {
     group_by(DNAME) |>
     summarize(
       across(
-        matches("Total|nH|Hispanic"), 
+        matches("Total|nH|Hispan"), 
         ~ sum(.x)
         )
       ) |> #Counts by ethnic group
     mutate(
       across(
-        matches("nH|Hispanic"), 
+        matches("nH|Hispan"), 
         ~ .x/Total, 
         .names = "{.col}_perc"
         )
@@ -33,7 +33,7 @@ bgsf_to_poldistsf <- function(bg_sf) {
     #Round counts and percentages post-calculation so percentages are not calculated with rounded numerators
     mutate(
       across(
-        matches("nH|Hispanic"), 
+        matches("nH|Hispan"), 
         ~ round(.x, 3)
         )
       )

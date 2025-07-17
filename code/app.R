@@ -3,21 +3,50 @@ library(bslib)
 library(tidyverse)
 library(sf)
 
+#Run once, not reactive
+source("code/introduction_script.R")
+source("code/census_data.R")
+source("code/bg_to_policedist.R")
+
 ui = fluidPage(
   titlePanel("Police District Population Denominators"),
-  mainPanel(
-    fileInput("spatial_file", "Upload Spatial File", accept = c(".shp")), #add more later 
-    actionButton("create", "Create Report"),
-    uiOutput("map")
+  tabsetPanel(
+    tabPanel("Introduction",
+      uiOutput("introduction")
+    ),
+    tabPanel("Pre-generated district report",
+      selectInput("report_city", "Select Pre-loaded City", 
+                  c("Raleigh", "Charlotte", "Durham")),
+      actionButton("create", "Create Report"),
+      uiOutput("map")
+    ),
+    tabPanel("Custom report",
+      fileInput("spatial_file", "Upload Spatial File", accept = c(".shp")), #add more later 
+      actionButton("create", "Create Report"),
+      uiOutput("map2")
+    )
  )
 )
 
 server = function(input, output, session) {
+  
+  source("code/update_policedist_shpfiles.R")
+  
   # #read_shp() <- reactive{(
   #   st_read(input$spatial_file)
   # )}
   # 
+  
+  output$introduction <- renderUI({
+    text <- intro_txt # from introduction_script.R 
+    print(text)
+  })
+  
   output$map <- renderUI({
+    
+  })
+  
+  output$map2 <- renderUI({
     
   })
 }

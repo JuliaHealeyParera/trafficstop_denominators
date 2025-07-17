@@ -26,6 +26,9 @@ police_dist <- ggplot(police_charlotte, aes(geometry = geometry, fill = DNAME)) 
 ggsave('plots/charlotte/police_dist.png', police_dist)
 
 source('code/census_data.R')
+#User can pick year -- else, use default
+yr <- read_csv('data/census_data/census_data_metadata.csv') |> filter(status == "current") |> pull(year)
+read_census_data(yr)
 
 #Get geometry unit of relevant city -- PREVIOUSLY USED FOR st_intersects, but replaced 
  #with alternative method below because police districts sometimes extend beyond "place" designation
