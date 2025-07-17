@@ -1,3 +1,21 @@
+bg_dist_subset <- function(census_tbl, police_dist) {
+  subset <- census_tbl[lengths(
+    st_intersects(
+      census_tbl$geometry, 
+      st_union(police_dist$geometry)
+    )) > 0, ]
+  
+  return(subset)
+}
+
+pivot_long_tidy <- function(subset_tbl) {
+  subset_tbl_long <- subset_tbl |>
+    pivot_longer(cols = Total:Hispan, names_to = "Group", values_to = "Count") |>
+    mutate(area = drop_units(st_area(geometry)))
+  
+  return(subset_tbl_long)
+}
+
 bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
   bg_sf = bg_tbl |> 
     st_intersection(poldist_sf) |> #Areas of intersection in geometry column 

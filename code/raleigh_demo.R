@@ -6,29 +6,18 @@ library(units)
 #Load current_policedistricts
 source('code/update_policedist_shpfiles.R')
 #No need to append for Raleigh (one of 3 original shp files)
+city <- 'raleigh'
+dist <- 'SWD' # somehow need to spatially? name districts 
 police_raleigh <- current_policedistricts |>
-  filter(city == "raleigh") |>
+  filter(city == city) |>
   mutate(num = row_number())
 police_swd_raleigh <- police_raleigh |>
-  filter(DISTRICT == "SWD")
+  filter(DISTRICT == dist)
 
 #Introductory map 1: All Raleigh districts
-police_dist <- ggplot(police_raleigh, aes(geometry = geometry, fill = DISTRICT)) + 
-  geom_sf() +
-  geom_sf_label(aes(label = num), fill = 'white') + 
-  theme_void() + 
-  guides(fill = "none") +
-  labs(title = "Raleigh has 6 police districts") + 
-  scale_fill_manual(values = c("orange3", "red3", "gray", "darkgreen", "yellow3","blue4"))
-#Introductory map (EXTRA): Zoom-in on SWD of Raleigh
-police_swd <- ggplot(police_swd_raleigh, aes(geometry = geometry, fill = DISTRICT)) + 
-  geom_sf() +
-  theme_void() + 
-  guides(fill = "none") +
-  labs(
-    title = "The Southwest Police District of Raleigh \nis made up of multiple complicated polygons.",
-    subtitle = "Many of these irregularities are due to independently-operated\nuniversity campus police departments.") +
-  scale_fill_manual(values = "blue4")
+police_dist <- police_district_map(police_raleigh, 'raleigh')
+#Introductory map 1 (EXTRA): Zoom-in on SWD of Raleigh
+police_swd <- police_district_map(police_swd_raleigh, 'southwest raleigh')
 #Save maps
 ggsave('plots/swd_raleigh/all_raleigh_districts_1.png', police_dist)
 ggsave('plots/swd_raleigh/swd_raleigh_district_extra.png', police_swd)
@@ -40,28 +29,17 @@ yr <- read_csv('data/census_data/census_data_metadata.csv') |>
   pull(year)
 read_census_data(yr)
 
+#Script for census manipulations
+source('code/bg_to_policedist.R')
 #All of Raleigh - census info
 raleigh_geography <- nc_bg_sf[nc_bg_sf$NAME=="Raleigh",'geometry'][[1]]
 #Raleigh SWD ethnicity data (geometry subset)
-raleigh_swd_tbl <- acs_data_tbl[lengths(
-  st_intersects(
-    acs_data_tbl$geometry, 
-    st_union(police_swd_raleigh$geometry)
-  )) > 0, ]
-raleigh_tbl <- acs_data_tbl[lengths(
-  st_intersects(
-    acs_data_tbl$geometry, 
-    st_union(police_raleigh$geometry)
-  )) > 0, ]
+raleigh_swd_tbl <- bg_dist_subset(acs_data_tbl, police_swd_raleigh)
+raleigh_tbl <- bg_dist_subset(acs_data_tbl, police_raleigh)
 
 #Make tidy to be able to facet for ethnic groups
-raleigh_swd_long <- raleigh_swd_tbl |>
-  pivot_longer(cols = Total:Hispan, names_to = "Group", values_to = "Count") |>
-  mutate(area = drop_units(st_area(geometry)))
-
-raleigh_long <- raleigh_tbl |>
-  pivot_longer(cols = Total:Hispan, names_to = "Group", values_to = "Count") |>
-  mutate(area = drop_units(st_area(geometry)))
+raleigh_swd_long <- pivot_long_tidy(raleigh_swd_tbl)
+raleigh_long <- pivot_long_tidy(raleigh_tbl) 
 
 #SWD block groups
 #TODO: Adjust label of minimum population region to be outside of map 

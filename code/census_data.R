@@ -44,44 +44,49 @@ reload_census_data <- function(year) {
     select(GEOID, NAME, geometry) |>
     st_transform(2264)
   
+  # Create new directory if necessary 
   if (!dir.exists(paste0('data/census_data/', year))) {
     dir.create(
       paste0('data/census_data/', year), 
       recursive = TRUE) 
   }
   
+  # Add data to repository 
   nc_bg_sf_path <- paste0('data/census_data/', year, '/nc_bg_sf_', year, '.shp') 
   acs_data_tbl_path <- paste0('data/census_data/', year, '/acs_data_tbl_', year, '.shp')
   st_write(nc_bg_sf, nc_bg_sf_path)
   st_write(acs_data_tbl, acs_data_tbl_path)
   
+  # Add new census information metadata to csv
   census_data_metadata <- read_csv('data/census_data/census_data_metadata.csv') |>
-    mutate(status = "deprecated") |>
     rbind(
       data.frame(year = year, 
                  date_added = Sys.Date(), 
                  status = "current", 
                  nc_bg_sf_path = nc_bg_sf_path, 
                  acs_data_tbl_path = acs_data_tbl_path)
-      )
+      ) 
+  
+  # Reload current default year as most recent year
+  max_yr <- max(as.numeric(c(census_data_metadata$year)))
+  census_data_metadata <- census_data_metadata |> 
+    mutate(
+      status = case_when(
+        year = as.character(max_yr) ~ "current", 
+        TRUE = "deprecated"
+      ))
 
   write_csv(census_data_metadata, 'data/census_data/census_data_metadata.csv')
 }
 
 read_census_data <- function(yr) {
-  if (yr %in% census_data_metadata$year) {
-    nc_bg_sf_path <- census_data_metadata[year == yr, 'nc_bg_sf_path'] 
-    acs_data_tbl_path <- census_data_metadata[year == yr, 'acs_data_tbl_path'] 
-    
-    nc_bg_sf <- st_read(nc_bg_sf_path)
-    acs_data_tbl <- st_read(acs_data_tbl_path)
-  } else {
+  if (!(yr %in% census_data_metadata$year)) {
     reload_census_data(yr)
-    
-    nc_bg_sf_path <- census_data_metadata[year == yr, 'nc_bg_sf_path'] 
-    acs_data_tbl_path <- census_data_metadata[year == yr, 'acs_data_tbl_path'] 
-    
-    nc_bg_sf <- st_read(nc_bg_sf_path)
-    acs_data_tbl <- st_read(acs_data_tbl_path)
   }
+  
+  # Read data
+  nc_bg_sf_path <- census_data_metadata[year == yr, 'nc_bg_sf_path'] 
+  acs_data_tbl_path <- census_data_metadata[year == yr, 'acs_data_tbl_path'] 
+  nc_bg_sf <- st_read(nc_bg_sf_path)
+  acs_data_tbl <- st_read(acs_data_tbl_path)
 }
