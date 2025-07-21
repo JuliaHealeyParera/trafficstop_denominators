@@ -6,10 +6,10 @@ library(units)
 #Load current_policedistricts
 source('code/update_policedist_shpfiles.R')
 #No need to append for Raleigh (one of 3 original shp files)
-city <- 'raleigh'
+city_name <- 'raleigh'
 dist <- 'SWD' # somehow need to spatially? name districts 
 police_raleigh <- current_policedistricts |>
-  filter(city == city) |>
+  filter(city == city_name) |>
   mutate(num = row_number())
 police_swd_raleigh <- police_raleigh |>
   filter(DISTRICT == dist)
@@ -28,7 +28,9 @@ source('code/census_data.R')
 yr <- read_csv('data/census_data/census_data_metadata.csv') |> 
   filter(status == "current") |> 
   pull(year)
-read_census_data(yr)
+census_info <- read_census_data(yr)
+nc_bg_sf <- census_info$bgsf[[1]]
+acs_data_tbl <- census_info$acstbl[[1]]
 
 #Script for census manipulations
 source('code/bg_to_policedist.R')
@@ -43,86 +45,48 @@ raleigh_swd_long <- pivot_long_tidy(raleigh_swd_tbl)
 raleigh_long <- pivot_long_tidy(raleigh_tbl) 
 
 #Block group population maps 
-swd_raleigh_bg_pop_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh')
-raleigh_bg_pop_map <- bg_population_map(raleigh_long, 'raleigh')
+swd_raleigh_bg_pop_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh', 'Total')
+raleigh_bg_pop_map <- bg_population_map(raleigh_long, 'raleigh', 'Total')
 #Save maps
 ggsave('plots/swd_raleigh/swd_raleigh_bg_pop_2.png', swd_raleigh_bg_pop_map)
 ggsave('plots/swd_raleigh/raleigh_bg_pop_alt.png', raleigh_bg_pop_map)
 
 #Black non-Hispanic plot
-blacknh_swd_count <- raleigh_swd_long |> filter(Group == 'B_nH') |> pull(Count) 
-blacknh_max_min_populations <- raleigh_swd_long |> 
-  filter(
-    Group == "B_nH", 
-    Count %in% c(
-      max(blacknh_swd_count), 
-      min(blacknh_swd_count)
-      )
-    ) |> 
-  group_by(Count) |> 
-  slice(1)
-
-population_blacknH <- ggplot() + 
-  geom_sf(
-    data = raleigh_swd_long |> 
-      filter(Group %in% c('B_nH')), 
-    aes(geometry = geometry, fill = Count), alpha = .65
-    ) +
-  geom_sf(
-    data = blacknh_max_min_populations, 
-    aes(geometry = geometry), 
-    fill = NA, 
-    color = "black", 
-    linewidth = .75
-    ) +
-  scale_fill_distiller(palette = "Purples", direction = 1) + 
-  geom_sf_label(data = blacknh_max_min_populations, aes(label = Count)) + 
-  theme_void() +
-  labs(
-    title = paste0(
-      "SW Raleigh's Black Non-Hispanic census neighborhood\npopulations range from ", 
-      max(blacknh_swd_count),
-      " to ",
-      min(blacknh_swd_count),
-      "."), 
-    fill = "Population")
-
+swd_raleigh_bg_bnH_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh', 'B_nH')
 #Save
-ggsave('plots/swd_raleigh/swd_bg_blacknhpop_extra.png', population_blacknH)
+ggsave('plots/swd_raleigh/swd_bg_blacknhpop_extra.png', swd_raleigh_bg_bnH_map)
 
 #Start ethnicity recalculations
-raleigh_tbl <- raleigh_tbl |> 
-  mutate(bg_full_area = st_area(geometry)) 
 police_raleigh <- police_raleigh |> 
   mutate(policedist_full_area = st_area(geometry)) |>
-  st_make_valid(police_swd_raleigh) #Need this line, otherwise police_charlotte fails st_is_valid()
-#Check with: st_is_valid(police_swd_raleigh), st_is_valid(raleigh_swd_tbl)
+  st_make_valid(police_swd_raleigh) 
 
-ral_intersection_sf = raleigh_tbl |> st_intersection(police_raleigh) #Areas of intersection in geometry column
-ral_intersection_sf <- ral_intersection_sf|> 
-  mutate(intersection_area = st_area(geometry),
-         bg_perc_area = drop_units(intersection_area / bg_full_area),
-         police_perc_area = drop_units(intersection_area / policedist_full_area)) |>
-  mutate(across(matches("Total|nH|Hispanic"), ~ .x * bg_perc_area)) #Recalculate ethnicity columns to be intersection-specific
-
-raleigh_swd_tbl <- raleigh_swd_tbl |> mutate(bg_full_area = st_area(geometry)) 
+ral_intersection_sf <- bgtbl_to_bgsf(raleigh_tbl, police_raleigh)
 swd_ral_intersection_sf <- ral_intersection_sf |> filter(DISTRICT == "SWD")
 police_swd_raleigh <- police_raleigh |> filter(DISTRICT == "SWD")
 
 #Police and census block overlay 
-#TODO: clean-up, currently messy and overcrowded
 annotated_bg <- raleigh_swd_tbl |> 
   filter(GEOID %in% c(371830516003, 371830530102)) #manually chosen
-all_bgs_with_overlap <- 
-  st_drop_geometry(swd_ral_intersection_sf) |>
-  right_join(raleigh_swd_tbl, by = join_by(GEOID == GEOID))
+bg_overlap_swd <- all_bg_overlapping_dist(swd_ral_intersection_sf, raleigh_swd_tbl)
 
-#Census block SW Raleigh police district intersections 
-total_bg_swd <- nrow(all_bgs_with_overlap)
-fully_included_bg_swd <- nrow(all_bgs_with_overlap |> filter(round(bg_perc_area, 2) == 1))
+#New area intersection map 
+bg_overlap_ral <- all_bg_overlapping_dist(ral_intersection_sf, raleigh_tbl)
+police_dist_census_blocks_citywide_map <- area_intersection_map(
+  bg_overlap_ral, 
+  police_raleigh,
+  "raleigh")
+
+#Residents in-district 
+dist_bg_pop_map <- resident_intersection_map(bg_overlap_ral, police_raleigh, "raleigh")
+
+#######OLD########
+#Census block SW Raleigh police district intersections  
+total_bg_swd <- nrow(bg_overlap_swd)
+fully_included_bg_swd <- nrow(bg_overlap_swd |> filter(round(bg_perc_area, 2) == 1))
 bg_dist_intersect <- ggplot() + 
   geom_sf(
-    data = all_bgs_with_overlap, 
+    data = bg_overlap_swd, 
     aes(geometry = geometry), 
     fill = NA) +
   geom_sf(
@@ -145,7 +109,7 @@ ggsave('plots/swd_raleigh/bg_dist_intersect_extra.png', bg_dist_intersect)
 #Percent area overlay
 police_dist_census_blocks <- ggplot() + 
   geom_sf(
-    data = all_bgs_with_overlap, 
+    data = bg_overlap_swd_swd, 
     aes(geometry = geometry, fill = bg_perc_area), 
     alpha = .7) + 
   geom_sf(
@@ -188,6 +152,7 @@ citywide_bgs_with_overlap <-
   st_drop_geometry(ral_intersection_sf) |>
   right_join(raleigh_tbl, by = join_by(GEOID == GEOID))
 
+#Percent area overlap citywide
 police_dist_census_blocks_citywide <- ggplot() + 
   geom_sf(
     data = citywide_bgs_with_overlap, 
@@ -220,7 +185,6 @@ ggsave(
   police_dist_census_blocks_citywide
   )
 
-
 #Map of num. total residents in district per block group 
 label_val <- swd_ral_intersection_sf[
   swd_ral_intersection_sf$GEOID %in% annotated_bg$GEOID, 
@@ -229,7 +193,7 @@ label_val <- swd_ral_intersection_sf[
 
 swd_bg_total <- ggplot() + 
   geom_sf(
-    data = all_bgs_with_overlap, 
+    data = bg_overlap_swd, 
     aes(geometry = geometry, fill = B_nH.x), 
     alpha = .7) + 
   geom_sf(
@@ -268,18 +232,13 @@ swd_bg_total <- ggplot() +
 ggsave('plots/swd_raleigh/swd_bg_intersection_totalpop_4.png', swd_bg_total)
 
 #Convert from block group unit to police district unit
-police_final <- ral_intersection_sf |> 
-  group_by(DISTRICT) |>
-  summarize(across(matches("Total|nH|Hispanic"), ~ sum(.x))) |> #Counts by ethnic group
-  mutate(across(matches("nH|Hispanic"), ~ .x/Total, .names = "{.col}_perc")) |> #Percentages (of district) by ethnic group
-  #Round counts and percentages post-calculation so percentages are not calculated with rounded numerators
-  mutate(across(matches("nH|Hispanic"), ~ round(.x, 3)))
+police_final <- bgsf_to_poldistsf(ral_intersection_sf, "DISTRICT") 
+police_final_swd <- police_final |> filter(DISTRICT == "SWD")
 
 #Full police district demographics overlap map
-police_final_swd <- police_final |> filter(DISTRICT == "SWD")
 swd_bg_full_dist <- ggplot() + 
   geom_sf(
-    data = all_bgs_with_overlap, 
+    data = bg_overlap_swd, 
     aes(geometry = geometry),
     fill = NA) +
   geom_sf(
@@ -301,30 +260,7 @@ swd_bg_full_dist <- ggplot() +
 ggsave('plots/swd_raleigh/swd_bg_full_dist_5.png', swd_bg_full_dist)
 
 #Demographic specific choropleth map (by police district)
-all_dist_blacknh_perc <- ggplot() + 
-  geom_sf(
-    data = police_final, 
-    aes(
-      geometry = geometry, 
-      fill = as.vector(B_nH_perc), 
-      )
-    ) +
-  geom_sf_label(
-    data = police_final, 
-    aes(label = paste0(as.vector(B_nH_perc)*100, "%")), 
-    fill = "white") +
-  scale_fill_distiller(
-    palette = "Purples", 
-    direction = 1, 
-    labels = scales::percent) + 
-  theme_void() + 
-  labs(
-    title = "The Southwest Raleigh police district has the second lowest\nproportion of Black residents in the city.", 
-    subtitle  = paste0(
-      "The Northwest Raleigh district has the lowest, with a ",
-      police_final |> filter(DISTRICT == "NWD") |> pull(B_nH_perc) * 100,
-      "% Black population."),
-    fill = "Percent of District\n(Black, non-Hispanic)")
+all_dist_blacknh_perc <- dist_population_map(police_final, "raleigh", "B_nH")
 ggsave('plots/swd_raleigh/all_dist_blacknh_perc_6.png', all_dist_blacknh_perc)
 
 

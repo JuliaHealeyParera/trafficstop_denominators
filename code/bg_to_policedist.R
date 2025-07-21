@@ -5,6 +5,9 @@ bg_dist_subset <- function(census_tbl, police_dist) {
       st_union(police_dist$geometry)
     )) > 0, ]
   
+  subset <- subset |>
+    mutate(bg_full_area = st_area(geometry)) 
+  
   return(subset)
 }
 
@@ -32,9 +35,11 @@ bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
       ) #Recalculate ethnicity columns to be intersection-specific
 }
 
-bgsf_to_poldistsf <- function(bg_sf) {
+bgsf_to_poldistsf <- function(bg_sf, dist_name_var) {
+  dist_sym <- rlang::sym(dist_name_var)
+  
   policedist_sf <- bg_sf |> 
-    group_by(DNAME) |>
+    group_by(!!dist_sym) |>
     summarize(
       across(
         matches("Total|nH|Hispan"), 
@@ -59,3 +64,9 @@ bgsf_to_poldistsf <- function(bg_sf) {
   return(policedist_sf)
 }
 
+all_bg_overlapping_dist <- function(bgsf, bg_dist_subset) {
+  overlap <- st_drop_geometry(bgsf) |>
+    right_join(bg_dist_subset, by = join_by(GEOID == GEOID))
+  
+  return(overlap)
+}

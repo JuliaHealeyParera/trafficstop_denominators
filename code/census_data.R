@@ -73,20 +73,24 @@ reload_census_data <- function(year) {
     mutate(
       status = case_when(
         year = as.character(max_yr) ~ "current", 
-        TRUE = "deprecated"
+        TRUE ~ "deprecated"
       ))
 
   write_csv(census_data_metadata, 'data/census_data/census_data_metadata.csv')
 }
 
 read_census_data <- function(yr) {
+  census_data_metadata <- read_csv('data/census_data/census_data_metadata.csv')
+  
   if (!(yr %in% census_data_metadata$year)) {
     reload_census_data(yr)
   }
   
   # Read data
-  nc_bg_sf_path <- census_data_metadata[year == yr, 'nc_bg_sf_path'] 
-  acs_data_tbl_path <- census_data_metadata[year == yr, 'acs_data_tbl_path'] 
+  nc_bg_sf_path <- census_data_metadata[census_data_metadata$year == yr, 'nc_bg_sf_path'] 
+  acs_data_tbl_path <- census_data_metadata[census_data_metadata$year == yr, 'acs_data_tbl_path'] 
   nc_bg_sf <- st_read(nc_bg_sf_path)
   acs_data_tbl <- st_read(acs_data_tbl_path)
+  
+  return(tibble(bgsf = list(nc_bg_sf), acstbl = list(acs_data_tbl)))
 }
