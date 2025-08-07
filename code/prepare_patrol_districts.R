@@ -1,5 +1,6 @@
 library(tidyverse)
 library(sf)
+library(patchwork)
 
 #TODO add folders? Create a metadata csv? Probably more efficient.
 patrol_district_tbl_nested = tibble(full_file = list.files(path = "data/patrol_districts/", 
@@ -16,6 +17,8 @@ patrol_district_tbl_nested
 
 # unnest gets very confused. Bind_rows seems to work
 
+
+
 patrol_district_sf = bind_rows(patrol_district_tbl_nested$sf)
 patrol_district_sf |> count(lea_name)
 
@@ -25,3 +28,15 @@ ggplot(patrol_district_sf, aes(fill = lea_name))+
   facet_wrap(~lea_name)+
   theme_void()+guides(fill = "none")
 # UGH, figure out free scales
+
+get_patrol_plot = function(this_sf, this_lea){
+  ggplot(data = this_sf |> filter(lea_name == this_lea))+
+    geom_sf()+
+    theme_void()+
+    labs(title = this_lea)
+}
+get_patrol_plot(patrol_district_sf, "Charlotte")
+g = get_patrol_plot(patrol_district_sf, "Charlotte") + 
+  get_patrol_plot(patrol_district_sf, "Durham") + 
+  get_patrol_plot(patrol_district_sf, "Raleigh")
+
