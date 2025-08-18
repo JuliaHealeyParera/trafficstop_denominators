@@ -82,8 +82,12 @@ reload_census_data <- function(year) {
 read_census_data <- function(yr) {
   census_data_metadata <- read_csv('data/census_data/census_data_metadata.csv')
   
-  if (!(yr %in% census_data_metadata$year)) {
+  if (!is.null(yr) && !(yr %in% census_data_metadata$year)) {
     reload_census_data(yr)
+  }
+  
+  if (is.null(yr)) {
+    yr <- census_data_metadata |> filter(status == "current") |> pull(year)
   }
   
   # Read data

@@ -4,6 +4,7 @@
 #TODO: Running stored record of shp files added/where/when/which city/etc
 
 #Initialize current police districts
+library(here)
 current_policedistricts <- st_read('data/currpolicedist_files/current_policedistricts.shp')
 
 #Function for appending new file, if needed

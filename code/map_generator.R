@@ -11,23 +11,53 @@ lab_ethnic_group <- function(ethnic_var) {
 }
 
 #Map 1 (City): Police Districts Map 
-police_district_map <- function(police_dist_sf, city) {
-  police_dist_map <- ggplot(police_dist_sf, aes(geometry = geometry, fill = DISTRICT)) + 
+police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NULL) {
+  if (map_unit == "district" & is.null(focus_dist)) {
+    stop("If map unit is district, focus district must be specified.")
+  }
+  
+  if (map_unit == "district") {
+    police_dist_sf <- police_dist_sf |>
+      mutate(
+        focus_dist = case_when(
+          DISTRICT == focus_dist ~ "Yes",
+          TRUE ~ "No"
+        ))
+    
+    title_text <- paste0(
+      "Zoom-in on ",
+      str_to_title(city),
+      " police district: ",
+      str_to_title(focus_dist)
+    )
+    district_var <- "focus_dist"
+  } else { 
+    district_var <- "DISTRICT"
+    
+    title_text <- paste0(
+      str_to_title(city), 
+      " has ", 
+      nrow(police_dist_sf), 
+      " police district", 
+      if_else(
+        nrow(police_dist_sf) > 1,
+        's.',
+        '.'
+      )
+    )
+  }
+  
+  police_dist_map <- ggplot(
+    police_dist_sf, 
+    aes(
+      geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800), 
+      fill = !!sym(district_var))
+    ) + 
     geom_sf() +
     theme_void() + 
     guides(fill = "none") +
     labs(
-      title = paste0(
-        str_to_title(city), 
-        " has ", 
-        nrow(police_dist_sf), 
-        " police district", 
-        if_else(
-          nrow(police_dist_sf) > 1,
-          's.',
-          '.'
-        )
-      )
+      title = title_text
     ) +
     scale_fill_brewer(palette = "Set3")
   
@@ -57,12 +87,15 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
     geom_sf(
       data = subset_tbl_long |> 
         filter(Group == ethnic_group), 
-      aes(geometry = geometry, fill = drop_units(Count)), 
+      aes(
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800), 
+        fill = Count
+        ), 
       alpha = .65
     ) + 
     geom_sf(
       data = total_max_min_populations, 
-      aes(geometry = geometry), 
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800)), 
       fill = NA, 
       color = "black", 
       linewidth = .75
@@ -84,7 +117,7 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
       fill = paste0(
         if_else(
           text_ethnic_group == "total", 
-          "Total", 
+          "Total\n", 
           paste0(text_ethnic_group, "\n")
           ), 
         "population")
@@ -94,16 +127,19 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
 }
 
 #Map 3: District Area Overlap Map 
-area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, total_bg, fully_included_bg) {
+area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, total_bg, fully_included_bg, focus_dist = NULL) {
   police_dist_census_blocks_citywide <- ggplot() + 
     geom_sf(
       data = all_bg_overlapping_dist, 
-      aes(geometry = geometry, fill = drop_units(bg_perc_area)), 
+      aes(
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800), 
+        fill = drop_units(bg_perc_area)
+      ), 
       alpha = .7) + 
     geom_sf(
       data = police_dist, 
-      aes(geometry = st_simplify(geometry, dTolerance = 750)), # add threshold for simplify if too complex?
-      fill = NA, 
+      aes(geometry = st_simplify(geometry, dTolerance = 500)), # add threshold for simplify if too complex?
+      fill = NA,
       color = 'black', 
       linewidth = .75) + 
     scale_fill_distiller(
@@ -115,7 +151,8 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
     labs(
       title = paste0(
         str_to_title(city),
-        "'s police district touches\n", 
+        "'s ",
+        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' district touches\n') else 'police districts touch\n',
         total_bg, 
         " census neighborhoods."), 
       subtitle = paste0(
@@ -127,7 +164,7 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
 }
 
 #Map 4: Neighborhood-District Specific Population Map
-resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city) {
+resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, map_unit) {
   swd_bg_total <- ggplot() + 
     geom_sf(
       data = all_bg_overlapping_dist, 
@@ -135,7 +172,7 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
       alpha = .7) + 
     geom_sf(
       data = police_dist, 
-      aes(geometry = geometry), 
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800)), 
       fill = NA, 
       color = 'black', 
       linewidth = .8) + 
@@ -143,8 +180,12 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
     coord_sf(clip="off") +
     theme_void() +
     labs(
-      title = "Some geographically small neighborhoods have\nmany in-district residents.",
-      subtitle = "Relatedly, large neighborhoods may contribute only a few,\ndepending on their district overlap",
+      title = if (map_unit == "district") 
+        "Some geographically small neighborhoods have\nmany in-district residents." 
+        else "A neighborhood containing a district boundary line will\ncontribute to multiple patrol areas.",
+      subtitle = if (map_unit == "district")
+      "Relatedly, large neighborhoods may contribute only a few,\ndepending on their district overlap"
+      else "On the other hand, a neighborhood within district boundary lines will\nonly contribute to one patrol area.",
       fill = "Num. of\nresidents")
   
   return(swd_bg_total)
@@ -161,7 +202,7 @@ format_si_custom <- function(x) {
 }
 
 #Map 5: All Police District Population Map
-dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, map_unit, perc_total, ethnic_group) {
+dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, map_unit, ethnic_group, perc_total = "total") {
   if (perc_total == "percent" & (ethnic_group == "Total" | map_unit == "district")) {
     stop("Map can only be in percent units if map is at city-level and ethnic group is not Total.")
   }
@@ -249,7 +290,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
     geom_sf(
       data = police_dist_sf, 
       aes(
-        geometry = geometry, 
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800), 
         fill = if (perc_total == "percent") {
           as.numeric(!!sym(ethnic_var))   
         } else {
@@ -309,7 +350,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
     all_dist_blacknh_perc <- all_dist_blacknh_perc +
       geom_sf(
         data = all_bg_overlapping_dist, 
-        aes(geometry = geometry),
+        aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 800)),
         fill = NA) +
       scale_fill_distiller(
         palette = "Purples",

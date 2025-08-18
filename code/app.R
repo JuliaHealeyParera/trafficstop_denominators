@@ -1,13 +1,7 @@
-library(shiny)
-library(bslib)
-library(tidyverse)
-library(sf)
-library(tools)
 library(here)
 
 #Run once, not reactive
-source(here("code", "introduction_script.R"))
-source(here("code", "census_city_names.R"))
+source(here("code", "initialize_app.R"))
 
 ui = fluidPage(
   titlePanel("Police District Population Denominators"),

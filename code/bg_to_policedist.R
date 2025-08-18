@@ -1,3 +1,5 @@
+library(here)
+
 bg_dist_subset <- function(census_tbl, police_dist) {
   subset <- census_tbl[lengths(
     st_intersects(
@@ -35,11 +37,9 @@ bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
       ) #Recalculate ethnicity columns to be intersection-specific
 }
 
-bgsf_to_poldistsf <- function(bg_sf, dist_name_var) {
-  dist_sym <- rlang::sym(dist_name_var)
-  
+bgsf_to_poldistsf <- function(bg_sf) {
   policedist_sf <- bg_sf |> 
-    group_by(!!dist_sym) |>
+    group_by(DISTRICT) |>
     summarize(
       across(
         matches("Total|nH|Hispan"), 

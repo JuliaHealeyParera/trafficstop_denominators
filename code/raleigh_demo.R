@@ -16,12 +16,12 @@ police_swd_raleigh <- police_raleigh |>
 
 source('code/map_generator.R')
 #Introductory map 1: All Raleigh districts
-police_dist_map <- police_district_map(police_raleigh, 'raleigh')
+police_dist_map <- police_district_map(police_raleigh, 'raleigh', 'city')
 #Introductory map 1 (EXTRA): Zoom-in on SWD of Raleigh
-police_swd_dist_map <- police_district_map(police_swd_raleigh, 'southwest raleigh')
+police_swd_dist_map <- police_district_map(police_swd_raleigh, 'raleigh', 'district', 'SWD')
 #Save maps
-ggsave('plots/swd_raleigh/all_raleigh_districts_1.png', police_dist_map)
-ggsave('plots/swd_raleigh/swd_raleigh_district_extra.png', police_swd_dist_map)
+ggsave('plots/raleigh/city/city_raleigh_districts_1.png', police_dist_map)
+ggsave('plots/raleigh/district_swd/swd_raleigh_district_1.png', police_swd_dist_map)
 
 #Load census data
 source('code/census_data.R')
@@ -48,13 +48,13 @@ raleigh_long <- pivot_long_tidy(raleigh_tbl)
 swd_raleigh_bg_pop_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh', 'Total')
 raleigh_bg_pop_map <- bg_population_map(raleigh_long, 'raleigh', 'Total')
 #Save maps
-ggsave('plots/swd_raleigh/swd_raleigh_bg_pop_2.png', swd_raleigh_bg_pop_map)
-ggsave('plots/swd_raleigh/raleigh_bg_pop_alt.png', raleigh_bg_pop_map)
+ggsave('plots/raleigh/district_swd/swd_raleigh_bg_pop_2.png', swd_raleigh_bg_pop_map)
+ggsave('plots/raleigh/city/raleigh_bg_pop_2.png', raleigh_bg_pop_map)
 
 #Black non-Hispanic plot
 swd_raleigh_bg_bnH_map <- bg_population_map(raleigh_swd_long, 'southwest raleigh', 'B_nH')
 #Save
-ggsave('plots/swd_raleigh/swd_bg_blacknhpop_extra.png', swd_raleigh_bg_bnH_map)
+ggsave('plots/raleigh/district_swd/swd_bg_blacknhpop_extra.png', swd_raleigh_bg_bnH_map)
 
 #Start ethnicity recalculations
 police_raleigh <- police_raleigh |> 
@@ -81,10 +81,24 @@ police_dist_census_blocks_citywide_map <- area_intersection_map(
   total_bg,
   fully_included_bg
   )
+total_bg_swd <- bg_overlap_swd |> group_by(GEOID) |> slice(1) |> nrow()
+fully_included_bg_swd <- bg_overlap_swd |> filter(round(as.vector(bg_perc_area), 2) == 1) |> nrow()
+police_dist_census_blocks_swd_map <- area_intersection_map(
+  bg_overlap_swd, 
+  police_swd_raleigh,
+  "raleigh",
+  total_bg_swd,
+  fully_included_bg_swd, 
+  "SWD"
+)
+ggsave('plots/raleigh/district_swd/district_area_overlap_raleigh.png', police_dist_census_blocks_swd_map)
+ggsave('plots/raleigh/city/district_area_overlap_swd.png', police_dist_census_blocks_citywide_map)
 
 #Residents in-district per block group
 dist_bg_pop_map <- resident_intersection_map(bg_overlap_ral, police_raleigh, "raleigh")
 dist_bg_pop_swd <- resident_intersection_map(bg_overlap_swd, police_swd_raleigh, "southwest raleigh")
+ggsave('plots/raleigh/district_swd/district_area_overlap_raleigh.png', police_dist_census_blocks_swd_map)
+ggsave('plots/raleigh/city/district_area_overlap_swd.png', police_dist_census_blocks_citywide_map)
 
 #Residents in each police district -- percent or number of residents
 poldist_sf_ral <- bgsf_to_poldistsf(ral_intersection_sf, "DISTRICT")
