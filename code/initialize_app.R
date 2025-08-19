@@ -20,4 +20,4 @@ source(here("code", "map_generator.R"))
 source(here("code", "generate_report_files.R"))
 
 # Text file #1 
-source(here("code", "introduction_script.R"))
+source(here("code", "text.R"))

@@ -18,8 +18,8 @@ original_sourcing <- function() {
       ", North Carolina| town| CDP| city"
     )) 
   
-  write_csv(nc_city_names, 'data/census_data/nc_city_names.csv')
+  write_csv(nc_city_names, here('data', 'census_data', 'nc_city_names.csv'))
 }
 
-nc_city_names <- read_csv('../data/census_data/nc_city_names.csv') |> pull(city)
+nc_city_names <- read_csv(here('data', 'census_data', 'nc_city_names.csv')) |> pull(city)
 

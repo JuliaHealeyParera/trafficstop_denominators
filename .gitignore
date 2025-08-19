@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+
+data/district_calculations.rds

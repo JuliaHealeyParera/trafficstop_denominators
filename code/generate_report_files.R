@@ -20,6 +20,10 @@ generate_analysis <- function(
     append_shp(file, city_lower, dist_name_var, geometry_var)
   }
   
+  if (map_unit == "district" & is.null(dist_name)) {
+    stop("Must provide district name if selecting district-specific geometry")
+  }
+  
   # Load police data and prepare for future geography calculations
   police_curr <- current_policedistricts |>
     filter(city == city_lower) |>
@@ -36,11 +40,11 @@ generate_analysis <- function(
   name_dist <- police_curr |> pull(DISTRICT)
   
   # ggplot #1, simple police district map. function from map_generator
-  police_dist_map <- police_district_map(police_curr, city_lower, map_unit)
+  police_dist_map <- police_district_map(police_curr, city_lower, map_unit, focus_dist = dist_name)
   
   # If user does not specify year, use currently-maintained current year
   if (is.null(year)) {
-    census_year <- read_csv('data/census_data/census_data_metadata.csv') |> 
+    census_year <- read_csv(here('data', 'census_data', 'census_data_metadata.csv')) |> 
       filter(status == "current") |> 
       pull(year)
   } else {
@@ -111,31 +115,33 @@ generate_analysis <- function(
     list(dist_bg_pop_map),
     list(dist_only_pop_map)
   )
+  
+  names_master_analysis <- c(
+    "city_name", "census_year", "date_added", 
+    "district_num", "district_names",
+    "police_district_df", 
+    "total_bg_num", "fullyinc_bg_num",
+    "policedist_sf_df", "bg_sf_df", 
+    "police_dist_ggplot", 
+    "bg_population_ggplot", 
+    "dist_bg_areraintersection_ggplot", 
+    "dist_bg_numresident_ggplot", 
+    "dist_pop_map_ggplot"
+  )
+  names(new_district_objects) <- names_master_analysis
+  
+  return(new_district_objects)
 }
 
 append_analysis <- function(new_district_objects) {
-  master_analysis_path <- "data/district_calculations.rds"
+  master_analysis_path <- here('data', 'district_calculations.rds')
   if (file.exists(master_analysis_path)) {
     district_calculations <- readRDS(master_analysis_path)
     joined_district_calculations <- rbind(district_calculations, new_district_objects)
-    saveRDS(joined_district_calculations, "data/district_calculations.rds")
+    saveRDS(joined_district_calculations, here('data', 'district_calculations.rds'))
   }
   else {
-    names_master_analysis <- c(
-      "city_name", "census_year", "date_added", 
-      "district_num", "district_names",
-      "police_district_df", 
-      "total_bg_num", "fullyinc_bg_num",
-      "policedist_sf_df", "bg_sf_df", 
-      "police_dist_ggplot", 
-      "bg_population_ggplot", 
-      "dist_bg_areraintersection_ggplot", 
-      "dist_bg_numresident_ggplot", 
-      "dist_pop_map_ggplot"
-    )
-    
-    names(new_district_objects) <- names_master_analysis
     new_obj_tibble <- as_tibble(new_district_objects)
-    saveRDS(new_obj_tibble, "data/district_calculations.rds")
+    saveRDS(new_obj_tibble, here('data', 'district_calculations.rds'))
   }
 }

@@ -1,11 +1,5 @@
-#Appends to current running police district shape file, if necessary 
-#TODO: build in stops, checks for file type 
-#TODO: Work in unexpected file types 
-#TODO: Running stored record of shp files added/where/when/which city/etc
-
 #Initialize current police districts
-library(here)
-current_policedistricts <- st_read('data/currpolicedist_files/current_policedistricts.shp')
+current_policedistricts <- st_read(here("data", "currpolicedist_files", "current_policedistricts.shp"))
 
 #Function for appending new file, if needed
 append_shp <- function(file_name, city_name, district_var, geometry_var) {

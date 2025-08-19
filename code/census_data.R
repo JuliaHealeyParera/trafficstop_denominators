@@ -52,13 +52,13 @@ reload_census_data <- function(year) {
   }
   
   # Add data to repository 
-  nc_bg_sf_path <- paste0('data/census_data/', year, '/nc_bg_sf_', year, '.shp') 
-  acs_data_tbl_path <- paste0('data/census_data/', year, '/acs_data_tbl_', year, '.shp')
+  nc_bg_sf_path <- here('data', 'census_data', as.character(year), paste0('nc_bg_sf_', year, '.shp'))
+  acs_data_tbl_path <- here('data', 'census_data', as.character(year), paste0('acs_data_tbl_', year, '.shp'))
   st_write(nc_bg_sf, nc_bg_sf_path)
   st_write(acs_data_tbl, acs_data_tbl_path)
   
   # Add new census information metadata to csv
-  census_data_metadata <- read_csv('data/census_data/census_data_metadata.csv') |>
+  census_data_metadata <- read_csv(here('data', 'census_data', 'census_data_metadata.csv')) |>
     rbind(
       data.frame(year = year, 
                  date_added = Sys.Date(), 
@@ -72,15 +72,15 @@ reload_census_data <- function(year) {
   census_data_metadata <- census_data_metadata |> 
     mutate(
       status = case_when(
-        year = as.character(max_yr) ~ "current", 
+        year == as.character(max_yr) ~ "current", 
         TRUE ~ "deprecated"
       ))
 
-  write_csv(census_data_metadata, 'data/census_data/census_data_metadata.csv')
+  write_csv(census_data_metadata, here('data', 'census_data', 'census_data_metadata.csv'))
 }
 
-read_census_data <- function(yr) {
-  census_data_metadata <- read_csv('data/census_data/census_data_metadata.csv')
+read_census_data <- function(yr = NULL) {
+  census_data_metadata <- read_csv(here('data', 'census_data', 'census_data_metadata.csv'))
   
   if (!is.null(yr) && !(yr %in% census_data_metadata$year)) {
     reload_census_data(yr)

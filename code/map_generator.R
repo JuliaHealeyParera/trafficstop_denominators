@@ -33,6 +33,10 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     district_var <- "focus_dist"
   } else { 
     district_var <- "DISTRICT"
+    police_dist_sf <- police_dist_sf |>
+      mutate(num = row_number())
+    
+    print('reached')
     
     title_text <- paste0(
       str_to_title(city), 
@@ -61,7 +65,7 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     ) +
     scale_fill_brewer(palette = "Set3")
   
-  if (nrow(police_dist_sf) > 1) {
+  if (map_unit == "city") {
     police_dist_map <- police_dist_map +
       geom_sf_label(aes(label = num), fill = 'white') 
   }
