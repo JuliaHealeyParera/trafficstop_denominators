@@ -78,7 +78,7 @@ server = function(input, output, session) {
     citywide <- city_calc()
     focusdist <- focusdist_calc()
     
-    ethnic_group <- "B_nH" ### THIS IS A DEFAULT, can be easily made into a selectInput and interactive
+    ethnic_group <- "B_nH" ### THIS IS A DEFAULT and can be easily made into a selectInput and interactive
     ethnic_group_perc <- paste0(ethnic_group, "_perc")
     
     num_dist <- citywide |> pull(district_num)
