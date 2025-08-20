@@ -7,6 +7,8 @@ library(tools)
 library(tidycensus)
 library(units)
 library(here)
+library(knitr)
+library(kableExtra)
 
 # Loads data and calls census API if necessary
 source(here("code", "census_data.R"))

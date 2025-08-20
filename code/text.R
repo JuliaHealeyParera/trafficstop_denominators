@@ -23,9 +23,9 @@ Conducting research on traffic enforcement at the patrol district level is neces
 
 citycalc_intro_1 <- function(city_name, district_name) {
   ret <- paste0(
-  "Let’s apply these calculations to a city of syour choosing, ",
+  "Let’s apply these calculations to a city of your choosing, ",
   str_to_title(city_name),
-  ". We can then zoom in to a single district ,",
+  ". We can then zoom in to a single district, ",
   str_to_title(district_name),
   ", to better understand the results."
   )
