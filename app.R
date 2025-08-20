@@ -31,7 +31,7 @@ server = function(input, output, session) {
   
   #### Introduction outputs ####
   output$introduction <- renderUI({
-    HTML(intro_txt) # from introduction_script.R 
+    HTML(introduction_general_1) # from introduction_script.R 
   })
   
   #### Pregenerated report ####

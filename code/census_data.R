@@ -1,7 +1,3 @@
-library(tidyverse)
-library(tidycensus)
-library(sf)
-
 reload_census_data <- function(year) {
   #Variables to extract from census
   census_data <- load_variables(year = year, dataset = "acs5") 
@@ -52,10 +48,10 @@ reload_census_data <- function(year) {
   }
   
   # Add data to repository 
-  nc_bg_sf_path <- here('data', 'census_data', as.character(year), paste0('nc_bg_sf_', year, '.shp'))
-  acs_data_tbl_path <- here('data', 'census_data', as.character(year), paste0('acs_data_tbl_', year, '.shp'))
-  st_write(nc_bg_sf, nc_bg_sf_path)
-  st_write(acs_data_tbl, acs_data_tbl_path)
+  nc_bg_sf_path <- paste0('data/census_data/', as.character(year),'/nc_bg_sf_', year, '.shp')
+  acs_data_tbl_path <- paste0('data/census_data/', as.character(year), '/acs_data_tbl_', year, '.shp')
+  st_write(nc_bg_sf, here(nc_bg_sf_path))
+  st_write(acs_data_tbl, here(acs_data_tbl_path))
   
   # Add new census information metadata to csv
   census_data_metadata <- read_csv(here('data', 'census_data', 'census_data_metadata.csv')) |>
@@ -93,8 +89,8 @@ read_census_data <- function(yr = NULL) {
   # Read data
   nc_bg_sf_path <- census_data_metadata[census_data_metadata$year == yr, 'nc_bg_sf_path'] 
   acs_data_tbl_path <- census_data_metadata[census_data_metadata$year == yr, 'acs_data_tbl_path'] 
-  nc_bg_sf <- st_read(nc_bg_sf_path)
-  acs_data_tbl <- st_read(acs_data_tbl_path)
+  nc_bg_sf <- st_read(here(nc_bg_sf_path))
+  acs_data_tbl <- st_read(here(acs_data_tbl_path))
   
   return(tibble(bgsf = list(nc_bg_sf), acstbl = list(acs_data_tbl)))
 }

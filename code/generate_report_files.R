@@ -93,8 +93,9 @@ generate_analysis <- function(
     police_dist_sf, 
     bg_overlap, 
     city, 
-    "city", 
-    ethnic_group
+    map_unit, 
+    ethnic_group,
+    dist_name = dist_name
   )
   
   # Join new objects together

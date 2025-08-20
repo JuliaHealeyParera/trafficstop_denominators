@@ -206,7 +206,7 @@ format_si_custom <- function(x) {
 }
 
 #Map 5: All Police District Population Map
-dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, map_unit, ethnic_group, perc_total = "total") {
+dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, map_unit, ethnic_group, dist_name = NULL, perc_total = "total") {
   if (perc_total == "percent" & (ethnic_group == "Total" | map_unit == "district")) {
     stop("Map can only be in percent units if map is at city-level and ethnic group is not Total.")
   }
@@ -267,7 +267,9 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
     
     title_text <- paste0(
       str_to_title(city),
-      " has ", 
+      "'s ",
+      str_to_title(dist_name), 
+      " patrol district has ", 
       prettyNum(num_res, big.mark = ','), 
       ' ', 
       if (text_ethnic_group == 'total') text_ethnic_group else paste0('\n', text_ethnic_group), 
