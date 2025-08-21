@@ -42,8 +42,6 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     police_dist_sf <- police_dist_sf |>
       mutate(num = row_number())
     
-    print('reached')
-    
     title_text <- paste0(
       str_to_title(city), 
       " has ", 
@@ -60,7 +58,7 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
   police_dist_map <- ggplot(
     police_dist_sf, 
     aes(
-      geometry = geometry, 
+      geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300), 
       fill = !!sym(district_var))
     ) + 
     geom_sf() +
@@ -98,14 +96,14 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
       data = subset_tbl_long |> 
         filter(Group == ethnic_group), 
       aes(
-        geometry = geometry, 
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300), 
         fill = Count
         ), 
       alpha = .65
     ) + 
     geom_sf(
       data = total_max_min_populations, 
-      aes(geometry = geometry), 
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), 
       fill = NA, 
       color = "black", 
       linewidth = .75
@@ -142,13 +140,13 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
     geom_sf(
       data = all_bg_overlapping_dist, 
       aes(
-        geometry = geometry, 
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300), 
         fill = drop_units(bg_perc_area)
       ), 
       alpha = .7) + 
     geom_sf(
       data = police_dist, 
-      aes(geometry = geometry), # add threshold for simplify if too complex?
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), # add threshold for simplify if too complex?
       fill = NA,
       color = 'black', 
       linewidth = .75) + 
@@ -178,11 +176,11 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
   swd_bg_total <- ggplot() + 
     geom_sf(
       data = all_bg_overlapping_dist, 
-      aes(geometry = geometry, fill = drop_units(Total.x)), 
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300), fill = drop_units(Total.x)), 
       alpha = .7) + 
     geom_sf(
       data = police_dist, 
-      aes(geometry = geometry), 
+      aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), 
       fill = NA, 
       color = 'black', 
       linewidth = .8) + 
@@ -302,7 +300,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
     geom_sf(
       data = police_dist_sf, 
       aes(
-        geometry = geometry, 
+        geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300), 
         fill = if (perc_total == "percent") {
           as.numeric(!!sym(ethnic_var))   
         } else {
@@ -362,7 +360,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
     all_dist_blacknh_perc <- all_dist_blacknh_perc +
       geom_sf(
         data = all_bg_overlapping_dist, 
-        aes(geometry = geometry),
+        aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)),
         fill = NA) +
       scale_fill_distiller(
         palette = "Purples",

@@ -46,9 +46,17 @@ server = function(input, output, session) {
   
   #### Pregenerated report ####
   city_calc <- reactive({
-    obj <- readRDS(here("data", "district_calculations.rds")) |>
+    obj <- readRDS(here("data","district_calculations.rds")) |>
       filter(city_name == str_to_lower(input$report_city), 
              district_num > 1)
+    
+    if (nrow(obj) == 0) { 
+      add <- generate_analysis(input$report_city, "city") 
+      append_analysis(add)
+      obj <- as.tibble(add)
+    }
+    
+    return(obj)
   }) |> bindEvent(input$report_city)
   
   output$district_name <- renderUI({
@@ -100,11 +108,6 @@ server = function(input, output, session) {
   output$calcdist_plot_4 <- renderPlot({ city_calc()$dist_bg_numresident_ggplot })
   output$calcdist_plot_5 <- renderPlot({ city_calc()$dist_pop_map_ggplot })
   
-  output$citywide_district_table <- renderUI({
-    
-  })
-  
-  
   output$focusdist_plot_1 <- renderPlot({ focusdist_calc()$police_dist_ggplot })
   output$focusdist_plot_2 <- renderPlot({ focusdist_calc()$bg_population_ggplot })
   output$focusdist_plot_3 <- renderPlot({ focusdist_calc()$dist_bg_areraintersection_ggplot })
@@ -114,12 +117,13 @@ server = function(input, output, session) {
   observeEvent(input$create_pregenerated, {
     citywide <- city_calc()
     focusdist <- focusdist_calc()
-    
+
     ethnic_group <- "B_nH" ### THIS IS A DEFAULT and can be easily made into a selectInput and interactive
     ethnic_group_perc <- paste0(ethnic_group, "_perc")
     
     num_dist <- citywide |> pull(district_num)
-    disttab <- citywide$policedist_sf_df[[1]] |>
+    disttab <- citywide$policedist_sf_df
+    disttab <- disttab[[1]] |>
       st_drop_geometry()
     
     disttab <- disttab |>

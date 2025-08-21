@@ -135,14 +135,14 @@ generate_analysis <- function(
 }
 
 append_analysis <- function(new_district_objects) {
-  master_analysis_path <- here('data', 'district_calculations.rds')
+  master_analysis_path <- here('here','district_calculations.rds')
   if (file.exists(master_analysis_path)) {
     district_calculations <- readRDS(master_analysis_path)
     joined_district_calculations <- rbind(district_calculations, new_district_objects)
-    saveRDS(joined_district_calculations, here('data', 'district_calculations.rds'))
+    saveRDS(joined_district_calculations, here('data','district_calculations.rds'))
   }
   else {
     new_obj_tibble <- as_tibble(new_district_objects)
-    saveRDS(new_obj_tibble, here('data', 'district_calculations.rds'))
+    saveRDS(new_obj_tibble, here('data','district_calculations.rds'))
   }
 }
