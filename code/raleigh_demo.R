@@ -18,7 +18,7 @@ source('code/map_generator.R')
 #Introductory map 1: All Raleigh districts
 police_dist_map <- police_district_map(police_raleigh, 'raleigh', 'city')
 #Introductory map 1 (EXTRA): Zoom-in on SWD of Raleigh
-police_swd_dist_map <- police_district_map(police_swd_raleigh, 'raleigh', 'district', 'SWD')
+police_swd_dist_map <- police_district_map(police_raleigh, 'raleigh', 'district', 'SWD')
 #Save maps
 ggsave('plots/raleigh/city/city_raleigh_districts_1.png', police_dist_map)
 ggsave('plots/raleigh/district_swd/swd_raleigh_district_1.png', police_swd_dist_map)

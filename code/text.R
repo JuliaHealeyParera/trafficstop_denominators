@@ -1,22 +1,66 @@
 #### INTRODUCTION ####
+introduction_general_1 <- HTML("
+  <p>
+    Courts have increasingly permitted the introduction of an arresting officer’s traffic stop data 
+    in support of Motions to Suppress or Dismiss in state and federal trial cases. 
+    <em>See, e.g., <i>State v. Johnson</i>, 385 N.C. 73 (2023); <i>United States v. Caldwell-Thompson</i>, 
+    Docket No. 3:20-CR-00286 (W.D.N.C. 2022); <i>State v. McShine</i>, No. 23-CR-383831 (N.C. Super. Ct. 2023).</em> 
+    Data presented in such motions typically includes totals and averages of officer and agency-level enforcement activity—
+    such as the number of stops, citations, arrests, and search rates—broken down by motorist race and ethnicity.
+  </p>
+  <p>
+    North Carolina was the first state to mandate the collection of traffic stop data in 2000. 
+    The state maintains one of the most comprehensive data collection systems in the United States through its 
+    State Bureau of Investigation (SBI) Traffic Stop Database. Enacted by the N.C. General Assembly in 1999 pursuant 
+    to N.C. Gen. Stat. § 114-10.01 (now codified at § 143B-903), the law requires most law enforcement agencies to 
+    report stop-level data, including driver demographics, the reason for the stop, search and contraband details, 
+    whether the stop resulted in an arrest, whether use of force was involved, and other details about the encounter. 
+    As of 2025, the database contains information on more than 31 million traffic stops reported by 340 agencies, 
+    including the N.C. State Highway Patrol and all law enforcement agencies in municipalities with populations of 10,000 and higher.
+  </p>
+")
 
-introduction_general_1 <- "Individual court cases are decided on the merits of the evidence and arguments. However, in recent years, courts have allowed the introduction of relevant aggregate traffic stop data to support numerous defendants’ Motions to Suppress in state and federal trial courts (Johnson, Caldwell-Thompson, Planter, Whitaker). This aggregate data consists of totals and averages of traffic enforcement-related events, such as the number of traffic stops by an officer or law enforcement agency; as well as an agency’s and specific officer’s traffic stop rates broken down by motorist race/ethnicity."
+introduction_racialdisparities_2 <- HTML("
+  <p>
+    This tool provides users with accurate racial population metrics—as well as an explanation of the means for 
+    calculating such metrics—for individual police patrol districts, which exist in a number of the state’s larger cities. 
+    In cases arising from multi-district jurisdictions, this data can be compared to an individual officer or agency’s 
+    traffic enforcement data, in accordance with trial and appellate courts’ need for an appropriate benchmark to 
+    evaluate whether a pattern of enforcement is suggestive of discriminatory intent and effect.
+  </p>
+")
 
-introduction_patrolareas_2 <- "Local law enforcement agencies (LEAs), such as municipal police departments and county sheriff’s offices, often divide their jurisdiction into separate areas for designated officers to patrol. These areas, or patrol districts, are often drawn separately from the boundaries used by other government agencies to divide counties."
+introduction_racialdisparities_quote_3 <- HTML("
+  <blockquote>
+    While these statistics certainly appear “stark” at first glance, there are not appropriate benchmarks from which 
+    we can determine discriminatory effect or purpose. <b>Without knowing the demographics of southeast Raleigh—the district 
+    Officer Kuchen was assigned and where this stop occurred—there is no adequate population benchmark</b> from which we can 
+    assess the racial composition of individuals and motorists “faced by” Officer Kuchen.
+  </blockquote>
+")
 
-introduction_patrolareas_3 <- "Police and sheriff departments may create their own patrol districts. The above patrol districts were collected from city-specific Open Data Portals in June 2025."
+introduction_racialdisparities_citation_4 <- HTML("
+  <p><em><i>State v. Johnson</i>, 2020 WL 7974001, *8 (N.C. Ct. App. 2020), aff’d, 385 N.C. 73 (2023).</em></p>
+")
 
-introduction_racialdisparities_4 <- "This tool is designed to provide accurate racial population metrics for police patrol districts, such that traffic stop data for individual officers might be compared against those metrics in line with courts’ need for appropriate benchmarks to assess potential discriminatory effect.
-North Carolina maintains one of the more comprehensive traffic stop data systems in the country through the State Bureau of Investigation’s (SBI) Traffic Stop Database. The database was established by the NC General Assembly in 1999 under N.C. Gen. Stat. § 114-10.01, now codified at § 143B-903, which requires certain law enforcement agencies to report information about each stop, including driver demographics, the reason for the stop, whether a search occurred, contraband was recovered, or force was employed, among other things. Having been in effect for more than 25 years, data is available for more than 31 million stops from 340 agencies statewide, including all municipal departments serving populations over 10,000; and the North Carolina State Highway Patrol. 
-Larger law enforcement agencies often divide their jurisdictions into smaller patrol districts, divisions, or zones. Officers may be assigned to a specific patrol district, in which they respond to calls for service, conduct proactive policing, and engage in traffic enforcement. In North Carolina, claims of selective enforcement based on traffic stop data and involving officers assigned to an individual patrol district are evaluated by comparing the officer’s data to the population of people in the patrol district. Courts rely on these patrol district-level population benchmarks to determine whether an officer’s traffic stop enforcement patterns present stark disparities that demonstrate discriminatory effect.
-The methodology described below focuses on individual patrol districts, which are the primary geographic units by which police departments organize officer assignments and daily enforcement activity. Because traffic stops occur within these geographically defined areas, courts have found patrol districts offer an appropriate spatial unit for purposes of comparing traffic enforcement data to local population demographics, as opposed to city-wide demographics.
-Conducting research on traffic enforcement at the patrol district level is necessary for identifying patterns that may raise constitutional or policy concerns. Comparing officers’ stop-level data against district-level population benchmarks permits courts and stakeholders to evaluate whether certain groups experience different enforcement practices."
-
-introduction_census_5 <- "This tool is designed to provide accurate racial population metrics for police patrol districts, such that traffic stop data for individual officers might be compared against those metrics in line with courts’ need for appropriate benchmarks to assess potential discriminatory effect.
-North Carolina maintains one of the more comprehensive traffic stop data systems in the country through the State Bureau of Investigation’s (SBI) Traffic Stop Database. The database was established by the NC General Assembly in 1999 under N.C. Gen. Stat. § 114-10.01, now codified at § 143B-903, which requires certain law enforcement agencies to report information about each stop, including driver demographics, the reason for the stop, whether a search occurred, contraband was recovered, or force was employed, among other things. Having been in effect for more than 25 years, data is available for more than 31 million stops from 340 agencies statewide, including all municipal departments serving populations over 10,000; and the North Carolina State Highway Patrol. 
-Larger law enforcement agencies often divide their jurisdictions into smaller patrol districts, divisions, or zones. Officers may be assigned to a specific patrol district, in which they respond to calls for service, conduct proactive policing, and engage in traffic enforcement. In North Carolina, claims of selective enforcement based on traffic stop data and involving officers assigned to an individual patrol district are evaluated by comparing the officer’s data to the population of people in the patrol district. Courts rely on these patrol district-level population benchmarks to determine whether an officer’s traffic stop enforcement patterns present stark disparities that demonstrate discriminatory effect.
-The methodology described below focuses on individual patrol districts, which are the primary geographic units by which police departments organize officer assignments and daily enforcement activity. Because traffic stops occur within these geographically defined areas, courts have found patrol districts offer an appropriate spatial unit for purposes of comparing traffic enforcement data to local population demographics, as opposed to city-wide demographics.
-Conducting research on traffic enforcement at the patrol district level is necessary for identifying patterns that may raise constitutional or policy concerns. Comparing officers’ stop-level data against district-level population benchmarks permits courts and stakeholders to evaluate whether certain groups experience different enforcement practices."
+introduction_patrol_areas_5 <- HTML("
+  <p>
+    Larger law enforcement agencies often divide their jurisdictions into smaller patrol districts—colloquially known 
+    as “beats”—to assign officers and structure enforcement activity. Patrol districts differ from city or county boundaries 
+    and serve as the geographic units where officers conduct traffic enforcement and other law enforcement activities.
+  </p>
+  <p>
+    Courts have determined that where an officer is assigned to a particular patrol district, that district is the appropriate 
+    spatial unit for comparing traffic stop data to population demographics. This district-level focus enables courts and stakeholders, 
+    assessing selective enforcement claims, to evaluate whether enforcement activity disproportionately affects specific racial or 
+    ethnic groups and gives rise to an inference of discriminatory intent.
+  </p>
+  <p>
+    Conducting research on traffic enforcement at the patrol district level is necessary for identifying patterns that may raise 
+    constitutional or policy concerns. Comparing officers’ stop-level data against district-level population benchmarks permits 
+    courts and stakeholders to evaluate whether certain groups experience different enforcement practices.
+  </p>
+")
 
 
 #### CITY-WIDE CALCULATIONS ####

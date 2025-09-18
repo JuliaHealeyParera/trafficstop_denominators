@@ -16,6 +16,28 @@ lab_ethnic_group <- function(ethnic_var) {
     "HaPI_nH" = "Hawaiian or Pacific Islander"))
 }
 
+font_add_google("Tinos", "TimesNewRoman")  # Tinos ≈ Times New Roman
+showtext_auto()
+
+theme_times <- function() {
+  theme_void(base_family = "TimesNewRoman") %+replace%
+    theme(
+      text = element_text(family = "TimesNewRoman", size = 15),
+      plot.title = ggtext::element_markdown(size = 15, hjust = 0.5,
+                                            margin = margin(b = 5)),
+      plot.subtitle = ggtext::element_markdown(size = 10, hjust = 0.5,
+                                               margin = margin(t = 2, b = 7)),
+      plot.margin = margin(t = 5, r = 100, b = 5, l = 100), # more space above
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 10, face = "bold"),
+      axis.text    = element_blank(),
+      axis.ticks   = element_blank(),
+      axis.title   = element_blank(),
+      axis.line    = element_blank(),
+      panel.grid   = element_blank()
+    )
+}
+
 #Map 1 (City): Police Districts Map 
 police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NULL) {
   if (map_unit == "district" & is.null(focus_dist)) {
@@ -62,16 +84,21 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
       fill = !!sym(district_var))
     ) + 
     geom_sf() +
-    theme_void() + 
+    theme_times() + 
     guides(fill = "none") +
     labs(
-      title = title_text
+      title = str_wrap(title_text, width =  50)
     ) +
-    scale_fill_brewer(palette = "Set3")
+    scale_fill_brewer(palette = "Set3") +
+    coord_sf(clip = "off")
   
   if (map_unit == "city") {
     police_dist_map <- police_dist_map +
-      geom_sf_label(aes(label = num), fill = 'white') 
+      geom_sf_label(
+        aes(label = num), 
+        fill = 'white',
+        family = "TimesNewRoman"
+      ) 
   }
   
   return(police_dist_map)
@@ -106,27 +133,31 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
       aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), 
       fill = NA, 
       color = "black", 
-      linewidth = .75
+      linewidth = .5
     ) +
     scale_fill_distiller(palette = "Blues", direction = 1) + 
-    geom_sf_label(data = total_max_min_populations, aes(label = Count)) + 
-    theme_void() +
+    geom_sf_label(
+      data = total_max_min_populations, 
+      aes(label = Count),
+      family = "TimesNewRoman") + 
+    theme_times() +
+    coord_sf(clip = "off") + 
     labs(
-      title = paste0(
+      title = str_wrap(paste0(
         str_to_title(city),
-        "'s census neighborhoods range\nfrom ", 
+        "'s census neighborhoods range from ", 
         max(total_count),
         " to ", 
         min(total_count[total_count > 5]),
         " ",
         text_ethnic_group,
-        " residents."),
-      subtitle = "Census neighborhoods are unevenly populated.",
+        " residents."), width =  50),
+      subtitle = str_wrap("Census neighborhoods are unevenly populated.", width =  50),
       fill = paste0(
         if_else(
           text_ethnic_group == "total", 
-          "Total\n", 
-          paste0(text_ethnic_group, "\n")
+          "Total ", 
+          paste0(text_ethnic_group, " ")
           ), 
         "population")
       )
@@ -149,24 +180,25 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
       aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), # add threshold for simplify if too complex?
       fill = NA,
       color = 'black', 
-      linewidth = .75) + 
+      linewidth = .5) + 
     scale_fill_distiller(
       palette = "Greens",
       direction = 1, 
       labels = scales::percent) + 
     coord_sf(clip="off") +
-    theme_void() +
+    theme_times() +
     labs(
-      title = paste0(
+      title = str_wrap(paste0(
         str_to_title(city),
         "'s ",
-        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' district touches\n') else 'police districts touch\n',
+        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' district touches ') else 'police districts touch ',
         total_bg, 
-        " census neighborhoods."), 
-      subtitle = paste0(
-        fully_included_bg, 
-        " of these neighborhoods are fully in the district."),
-      fill = "% of block\ngroup in district")
+        " census neighborhoods."), width =  50), 
+      subtitle = str_wrap(
+        paste0(
+          fully_included_bg, 
+        " of these neighborhoods are fully in the district."), width =  50),
+      fill = "% of block group in district")
   
   return(police_dist_census_blocks_citywide)
 }
@@ -183,18 +215,18 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
       aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), 
       fill = NA, 
       color = 'black', 
-      linewidth = .8) + 
+      linewidth = .5) + 
     scale_fill_distiller(palette = "Blues", direction = 1) + 
     coord_sf(clip="off") +
-    theme_void() +
+    theme_times() +
     labs(
       title = if (map_unit == "district") 
-        "Some geographically small neighborhoods have\nmany in-district residents." 
-        else "A neighborhood containing a district boundary line will\ncontribute to multiple patrol areas.",
+        "Some geographically small neighborhoods have many in-district residents." 
+        else "A neighborhood containing a district boundary line will contribute to\nmultiple patrol areas.",
       subtitle = if (map_unit == "district")
-      "Relatedly, large neighborhoods may contribute only a few,\ndepending on their district overlap"
-      else "On the other hand, a neighborhood within district boundary lines will\nonly contribute to one patrol area.",
-      fill = "Num. of\nresidents")
+        "Relatedly, large neighborhoods may contribute only a few, depending on their district overlap"
+        else "On the other hand, a neighborhood within district boundary lines will only contribute to\none patrol area.",
+      fill = "Num. of residents")
   
   return(swd_bg_total)
 }
@@ -254,7 +286,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
       "'s ",
       low_county,
       " has the lowest ",
-      if (perc_total == "percent") "proportion of\n" else "number of\n",
+      if (perc_total == "percent") "proportion of " else "number of ",
       if (ethnic_group != "Total") paste0(text_ethnic_group, ' ') else '',
       "residents."
       )
@@ -276,7 +308,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
       " patrol district has ", 
       prettyNum(num_res, big.mark = ','), 
       ' ', 
-      if (text_ethnic_group == 'total') text_ethnic_group else paste0('\n', text_ethnic_group), 
+      if (text_ethnic_group == 'total') text_ethnic_group else paste0(' ', text_ethnic_group), 
       " residents."
     )
     
@@ -290,7 +322,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
         percent * 100, 
         '% of ',
         str_to_title(city),
-        "'s total population\nis ",
+        "'s total population is ",
         text_ethnic_group
       )
     }
@@ -308,11 +340,12 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
         }, 
       )
     ) +
-    theme_void() + 
+    theme_times() +
+    coord_sf(clip = "off") +
     labs(
-      title = title_text, 
+      title = str_wrap(title_text, width =  50), 
       fill = paste0(
-        if (perc_total == "percent") "Percent of District\n(" else "Number of Residents\n(",
+        if (perc_total == "percent") "Percent of District (" else "Number of Residents (",
         text_ethnic_group, 
         ")")
     )
@@ -330,7 +363,8 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
       geom_sf_label(
         data = police_dist_sf, 
         label = police_dist_sf$label_val,
-        fill = "white") +
+        fill = "white",
+        family = "TimesNewRoman") +
       scale_fill_distiller(
         palette = "Purples",
         direction = 1,
@@ -348,7 +382,8 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
             round( as.numeric(!!sym(ethnic_var)) * 100, 1), 
             "%")
           ),
-        fill = "white")  +
+        fill = "white",
+        family = "TimesNewRoman")  +
       scale_fill_distiller(
         palette = "Purples", 
         direction = 1, 
@@ -369,7 +404,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
   }
   if (!(map_unit == "district" & ethnic_group == "Total")) {
     all_dist_blacknh_perc <- all_dist_blacknh_perc +
-      labs(subtitle = subtitle_text) 
+      labs(subtitle = str_wrap(subtitle_text), width =  50) 
   }
   
   return(all_dist_blacknh_perc)

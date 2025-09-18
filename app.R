@@ -4,43 +4,196 @@ library(here)
 source(here("code", "initialize_app.R"))
 
 ui = fluidPage(
-  titlePanel("Police District Population Denominators"),
+  # Set journal theme permanently and add custom CSS for Times New Roman
+  theme = bslib::bs_theme(bootswatch = "journal"),
+  
+  # Custom CSS for Times New Roman font
+  tags$head(
+    tags$style(HTML("
+    * {
+      font-family: 'Times New Roman', Times, serif !important;
+    }
+    
+    body, .container-fluid, .well, .nav, .navbar, .btn, input, select, textarea, 
+    .form-control, .help-block, .control-label, h1, h2, h3, h4, h5, h6, p, div, span, 
+    .shiny-input-container label, .selectize-input, .selectize-dropdown {
+      font-family: 'Times New Roman', Times, serif !important;
+    }
+    
+        /* Constrain the main content area */
+    .container-fluid {
+      max-width: 1200px;   /* adjust for how wide you want the content */
+      margin-left: auto;
+      margin-right: auto;
+      background-color: white;  /* ensures white buffer */
+      padding-left: 30px;  /* optional inner padding */
+      padding-right: 30px;
+    }
+
+    /* Ensure tables also use Times New Roman */
+    table, th, td, .table {
+      font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    /* Make tabPanel labels bigger */
+    .nav-tabs > li > a {
+      font-size: 24px !important;
+    }
+    
+    h2 {
+      padding: 10px 0 5px 0; /* top, right, bottom, left */
+      border-bottom: 1px solid #ddd; /* optional underline */
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    
+    .input-box {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 25px;
+      margin: 40px auto;        /* equal top/bottom spacing */
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 500px;
+      text-align: center;
+    }
+
+    
+    .input-box .shiny-input-container {
+      margin: 0 auto;       /* centers the select box itself */
+      text-align: left;     /* keeps label + dropdown text aligned left */
+      padding: 10px;
+      width: 80%;           /* shrink width a bit for balance */
+    }
+    
+    /* Larger labels for selectInputs */
+    .input-box label {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    /* Custom header styling */
+    .custom-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+      background-color: #f8f9fa;
+    }
+    
+    .logo-container {
+      flex: 0 0 auto;
+    }
+    
+    .title-container {
+      flex: 1;
+    }
+    
+    .plot-box, .plot-box img, .plot-box .shiny-image-output {
+      max-width: 80% !important;  /* cap at 80% of container */
+      height: auto !important;    /* no stretching */
+      margin: 5px auto;          /* even spacing */
+      display: block;
+    }
+    
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 2s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  "))
+  ),
+  
+  # Custom header with title and logo
+  div(
+    class = "custom-header",
+    # Title on the left
+    div(
+      class = "title-container",
+      h1("Police District Population Denominators", 
+         style = "margin: 0; font-size: 34px; color: #333;")
+    ),
+    # Logo on the right
+    div(
+      class = "logo-container",
+      img(src = "ncemancipate_logo.png", 
+          alt = "NC Emancipate Logo",
+          style = "height: 60px; max-width: 200px; object-fit: contain;")
+    )
+  ),
+  
+  
   tabsetPanel(
     tabPanel("About this tool",
-      uiOutput("introduction")
+             uiOutput("introduction")
     ),
     tabPanel("Pre-generated district report",
-      selectInput("report_city", "Select Pre-loaded City", 
-                  c("Raleigh", "Charlotte", "Durham")),
-      uiOutput("district_name"),
-      actionButton("create_pregenerated", "Create Report"),
-      uiOutput("compositeOutput")
+             div(class = "input-box",
+                 selectInput("report_city", "Select Pre-Loaded City", 
+                             c("Raleigh", "Charlotte", "Durham")),
+                 uiOutput("district_name"),
+                 
+                 actionButton("create_pregenerated", "Create Report", class = "btn-primary")
+             ),
+             # Add loading indicator
+             conditionalPanel(
+               condition = "($('html').hasClass('shiny-busy'))",
+               div(
+                 style = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);",
+                 div(
+                   style = "text-align: center;",
+                   div(
+                     style = "border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;",
+                     tags$style(HTML("@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }"))
+                   ),
+                   br(),
+                   h4("Generating Report...", style = "margin: 10px 0; color: #333;")
+                 )
+               )
+             ),
+             br(),
+             uiOutput("compositeOutput")
+             # tabPanel("Custom report",
+             #   fileInput("spatial_file", "Upload Spatial Files (ZIP folder)", accept = c(".zip")), #add more later 
+             #   selectInput("custom_city", "Select City", c("Burner", "Cities", "here")),
+             #   uiOutput("district_name_var"),
+             #   uiOutput("geometry_name_var"),
+             #   actionButton("create_custom", "Create Report"),
+             #   uiOutput("map2")
+             # )
     )
-    # tabPanel("Custom report",
-    #   fileInput("spatial_file", "Upload Spatial Files (ZIP folder)", accept = c(".zip")), #add more later 
-    #   selectInput("custom_city", "Select City", c("Burner", "Cities", "here")),
-    #   uiOutput("district_name_var"),
-    #   uiOutput("geometry_name_var"),
-    #   actionButton("create_custom", "Create Report"),
-    #   uiOutput("map2")
-    # )
- )
+  )
 )
+    
 
 server = function(input, output, session) {
   
   #### Introduction outputs ####
   output$introduction <- renderUI({
     tagList(
-      tags$h2("Introduction", style = "font-size:24px; margin-top:20px;"),
+      tags$h2("Introduction"),
       introduction_general_1,
-      tags$h2("What are Patrol Areas?", style = "font-size:24px; margin-top:20px;"),
-      introduction_patrolareas_2,
-      #map here? 
-      tags$h2("Understanding Racial Disparities", style = "font-size:24px; margin-top:20px;"),
-      introduction_racialdisparities_4,
-      tags$h2("What is the U.S. Census?", style = "font-size:24px; margin-top:20px;"),
-      introduction_census_5
+      
+      tags$h2("Understanding Racial Disparities"),
+      introduction_racialdisparities_2,
+      introduction_racialdisparities_quote_3,
+      introduction_racialdisparities_citation_4,
+      
+      tags$h2("What are Patrol Areas?"),
+      introduction_patrol_areas_5
     )
   })
   
@@ -102,26 +255,64 @@ server = function(input, output, session) {
     return(focusdist_calc)
   })
   
-  output$calcdist_plot_1 <- renderPlot({ city_calc()$police_dist_ggplot })
-  output$calcdist_plot_2 <- renderPlot({ city_calc()$bg_population_ggplot })
-  output$calcdist_plot_3 <- renderPlot({ city_calc()$dist_bg_areraintersection_ggplot })
-  output$calcdist_plot_4 <- renderPlot({ city_calc()$dist_bg_numresident_ggplot })
-  output$calcdist_plot_5 <- renderPlot({ city_calc()$dist_pop_map_ggplot })
+  # Citywide plot outputs
+  output$calcdist_plot_1 <- renderImage({ 
+    outfile <- city_calc()$police_dist_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$calcdist_plot_2 <- renderImage({
+    outfile <- city_calc()$bg_population_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$calcdist_plot_3 <- renderImage({ 
+    outfile <- city_calc()$dist_bg_areraintersection_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$calcdist_plot_4 <- renderImage({ 
+    outfile <- city_calc()$dist_bg_numresident_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$calcdist_plot_5 <- renderImage({ 
+    outfile <- city_calc()$dist_pop_map_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
   
-  output$focusdist_plot_1 <- renderPlot({ focusdist_calc()$police_dist_ggplot })
-  output$focusdist_plot_2 <- renderPlot({ focusdist_calc()$bg_population_ggplot })
-  output$focusdist_plot_3 <- renderPlot({ focusdist_calc()$dist_bg_areraintersection_ggplot })
-  output$focusdist_plot_4 <- renderPlot({ focusdist_calc()$dist_bg_numresident_ggplot })
-  output$focusdist_plot_5 <- renderPlot({ focusdist_calc()$dist_pop_map_ggplot })
+  # Focus district plot outputs
+  output$focusdist_plot_1 <- renderImage({ 
+    outfile <- focusdist_calc()$police_dist_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$focusdist_plot_2 <- renderImage({ 
+    outfile <- focusdist_calc()$bg_population_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$focusdist_plot_3 <- renderImage({ 
+    outfile <- focusdist_calc()$dist_bg_areraintersection_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$focusdist_plot_4 <- renderImage({ 
+    outfile <- focusdist_calc()$dist_bg_numresident_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
+  output$focusdist_plot_5 <- renderImage({ 
+    outfile <- focusdist_calc()$dist_pop_map_ggplot 
+    list(src = normalizePath(outfile),
+         contentType = "image/png")
+  }, deleteFile = FALSE)
   
-  observeEvent(input$create_pregenerated, {
-    citywide <- city_calc()
-    focusdist <- focusdist_calc()
-
-    ethnic_group <- "B_nH" ### THIS IS A DEFAULT and can be easily made into a selectInput and interactive
-    ethnic_group_perc <- paste0(ethnic_group, "_perc")
+  disttab_reactive <- reactive({
+    req(input$create_pregenerated)
     
-    num_dist <- citywide |> pull(district_num)
+    citywide <- city_calc()
     disttab <- citywide$policedist_sf_df
     disttab <- disttab[[1]] |>
       st_drop_geometry()
@@ -143,8 +334,33 @@ server = function(input, output, session) {
         'Total Population' = total,
         District = DISTRICT)
     
-    kbl_table <- knitr::kable(disttab, format = "html", digits = 0) |>
-      kableExtra::kable_styling("striped", full_width = FALSE)
+    return(disttab)
+  })
+  
+  # Add download handler for CSV
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("patrol_district_populations_", input$report_city, "_", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      citywide <- city_calc()
+      to_download <- citywide$policedist_sf_df
+      csv_data <- to_download[[1]] |>
+        st_drop_geometry() |>
+        mutate(across(Total:Hispan_perc, function(x) round(as.numeric(x))))
+      
+      write.csv(csv_data, file, row.names = FALSE)
+    }
+  )
+  
+  observeEvent(input$create_pregenerated, {
+    citywide <- city_calc()
+    focusdist <- focusdist_calc()
+
+    ethnic_group <- "B_nH" ### THIS IS A DEFAULT and can be easily made into a selectInput and interactive
+    ethnic_group_perc <- paste0(ethnic_group, "_perc")
+    
+    num_dist <- citywide |> pull(district_num)
 
     district_info <- focusdist$policedist_sf_df[[1]]
     dist_totalpop <- formatC(round(district_info$Total), format = "d", big.mark = ',')
@@ -158,41 +374,48 @@ server = function(input, output, session) {
         citycalc_intro_1(input$report_city, input$focus_district),
         tags$h2("Police Districts", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldist_2(input$report_city, num_dist),
-        plotOutput("calcdist_plot_1"),
+        div(class = "plot-box", imageOutput("calcdist_plot_1", width = "100%", height = "500px")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgpop_3,
-        plotOutput("calcdist_plot_2"),
+        div(class = "plot-box", imageOutput("calcdist_plot_2", width = "100%", height = "500px")),
         tags$h2("District Area Overlap", style = "font-size:24px; margin-top:20px;"),
         citycalc_areaoverlap_4,
-        plotOutput("calcdist_plot_3"),
+        div(class = "plot-box", imageOutput("calcdist_plot_3", width = "100%", height = "500px")),
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgdistpop_5,
-        plotOutput("calcdist_plot_4"),
+        div(class = "plot-box", imageOutput("calcdist_plot_4", width = "100%", height = "500px")),
         tags$h2("Police Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldistpop_6,
-        plotOutput("calcdist_plot_5"),
-        tags$h2("Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
-        HTML(kbl_table),
+        div(class = "plot-box", imageOutput("calcdist_plot_5", width = "100%", height = "500px")),
+        div(
+          style = "display: flex; align-items: center; justify-content: space-between; margin-top: 20px;",
+          tags$h2("Patrol District Populations", style = "font-size:24px; margin: 0;"),
+          downloadButton("downloadData", "Download CSV", 
+                         class = "btn-primary")
+        ),
+        HTML(knitr::kable(disttab_reactive(), format = "html", digits = 0) |>
+               kableExtra::kable_styling("striped", full_width = FALSE)),
         br(),
         tags$h1("District-Specific Calculations", style = "font-size:32px; margin-top:20px;"),
         tags$h2("Single Police District", style = "font-size:24px; margin-top:20px;"),
         focusdist_intro_1(input$report_city, input$focus_district),
-        plotOutput("focusdist_plot_1"),
+        div(class = "plot-box",  imageOutput("focusdist_plot_1", width = "100%", height = "500px")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgpop_2,
-        plotOutput("focusdist_plot_2"),
+        div(class = "plot-box",  imageOutput("focusdist_plot_2", width = "100%", height = "500px")),
         tags$h2("District Area Overlap", style = "font-size:24px; margin-top:20px;"),
         focusdist_areaoverlap_3,
-        plotOutput("focusdist_plot_3"),
+        div(class = "plot-box", imageOutput("focusdist_plot_3", width = "100%", height = "500px")),
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgdistpop_4,
-        plotOutput("focusdist_plot_4"),
+        div(class = "plot-box", imageOutput("focusdist_plot_4", width = "100%", height = "500px")),
         tags$h2("Police Patrol District Population", style = "font-size:24px; margin-top:20px;"),
         focusdist_poldist_5(input$focus_district, dist_totalpop, dist_ethnicpop, dist_ethnicperc, ethnic_label),
-        plotOutput("focusdist_plot_5"),
+        div(class = "plot-box", imageOutput("focusdist_plot_5", width = "100%", height = "500px")),
       )
     })
   })
+
   
   #### Custom geometry ####
   police_dist <- reactiveVal()  
