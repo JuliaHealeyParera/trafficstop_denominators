@@ -16,7 +16,7 @@ lab_ethnic_group <- function(ethnic_var) {
     "HaPI_nH" = "Hawaiian or Pacific Islander"))
 }
 
-font_add_google("Tinos", "TimesNewRoman")  # Tinos ≈ Times New Roman
+font_add_google("Tinos", "TimesNewRoman") 
 showtext_auto()
 
 theme_times <- function() {
@@ -27,7 +27,7 @@ theme_times <- function() {
                                             margin = margin(b = 5)),
       plot.subtitle = ggtext::element_markdown(size = 10, hjust = 0.5,
                                                margin = margin(t = 2, b = 7)),
-      plot.margin = margin(t = 5, r = 100, b = 5, l = 100), # more space above
+      plot.margin = margin(t = 5, r = 20, b = 5, l = 20),
       legend.text = element_text(size = 10),
       legend.title = element_text(size = 10, face = "bold"),
       axis.text    = element_blank(),

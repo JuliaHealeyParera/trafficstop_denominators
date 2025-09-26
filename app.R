@@ -93,13 +93,24 @@ ui = fluidPage(
       flex: 1;
     }
     
-    .plot-box, .plot-box img, .plot-box .shiny-image-output {
-      max-width: 80% !important;  /* cap at 80% of container */
-      height: auto !important;    /* no stretching */
-      margin: 5px auto;          /* even spacing */
+    .plot-box {
+      min-height: 0 !important;   
+      max-width: 60% !important;  /* Reduced from 90% to make images smaller */
+      height: auto !important;    
+      margin: 10px auto;          
       display: block;
+      text-align: center;         
     }
     
+    .plot-box img, .plot-box .shiny-image-output {
+      min-height: 0 !important;   
+      max-width: 100% !important; 
+      height: auto !important;    
+      margin: 0 auto;             
+      display: block;
+      border: none;               
+    }
+        
     .loading-spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #3498db;
@@ -259,54 +270,74 @@ server = function(input, output, session) {
   output$calcdist_plot_1 <- renderImage({ 
     outfile <- city_calc()$police_dist_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$calcdist_plot_2 <- renderImage({
     outfile <- city_calc()$bg_population_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$calcdist_plot_3 <- renderImage({ 
     outfile <- city_calc()$dist_bg_areraintersection_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$calcdist_plot_4 <- renderImage({ 
     outfile <- city_calc()$dist_bg_numresident_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$calcdist_plot_5 <- renderImage({ 
     outfile <- city_calc()$dist_pop_map_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   
   # Focus district plot outputs
   output$focusdist_plot_1 <- renderImage({ 
     outfile <- focusdist_calc()$police_dist_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$focusdist_plot_2 <- renderImage({ 
     outfile <- focusdist_calc()$bg_population_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$focusdist_plot_3 <- renderImage({ 
     outfile <- focusdist_calc()$dist_bg_areraintersection_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$focusdist_plot_4 <- renderImage({ 
     outfile <- focusdist_calc()$dist_bg_numresident_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   output$focusdist_plot_5 <- renderImage({ 
     outfile <- focusdist_calc()$dist_pop_map_ggplot 
     list(src = normalizePath(outfile),
-         contentType = "image/png")
+         contentType = "image/png", 
+         width = "auto", 
+         height = "auto")
   }, deleteFile = FALSE)
   
   disttab_reactive <- reactive({
@@ -374,19 +405,19 @@ server = function(input, output, session) {
         citycalc_intro_1(input$report_city, input$focus_district),
         tags$h2("Police Districts", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldist_2(input$report_city, num_dist),
-        div(class = "plot-box", imageOutput("calcdist_plot_1", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("calcdist_plot_1", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgpop_3,
-        div(class = "plot-box", imageOutput("calcdist_plot_2", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("calcdist_plot_2", width = "auto", height = "auto")),
         tags$h2("District Area Overlap", style = "font-size:24px; margin-top:20px;"),
         citycalc_areaoverlap_4,
-        div(class = "plot-box", imageOutput("calcdist_plot_3", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("calcdist_plot_3", width = "auto", height = "auto")),
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgdistpop_5,
-        div(class = "plot-box", imageOutput("calcdist_plot_4", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("calcdist_plot_4", width = "auto", height = "auto")),
         tags$h2("Police Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldistpop_6,
-        div(class = "plot-box", imageOutput("calcdist_plot_5", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("calcdist_plot_5", width = "auto", height = "auto")),
         div(
           style = "display: flex; align-items: center; justify-content: space-between; margin-top: 20px;",
           tags$h2("Patrol District Populations", style = "font-size:24px; margin: 0;"),
@@ -399,19 +430,19 @@ server = function(input, output, session) {
         tags$h1("District-Specific Calculations", style = "font-size:32px; margin-top:20px;"),
         tags$h2("Single Police District", style = "font-size:24px; margin-top:20px;"),
         focusdist_intro_1(input$report_city, input$focus_district),
-        div(class = "plot-box",  imageOutput("focusdist_plot_1", width = "100%", height = "500px")),
+        div(class = "plot-box",  imageOutput("focusdist_plot_1", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgpop_2,
-        div(class = "plot-box",  imageOutput("focusdist_plot_2", width = "100%", height = "500px")),
+        div(class = "plot-box",  imageOutput("focusdist_plot_2", width = "auto", height = "auto")),
         tags$h2("District Area Overlap", style = "font-size:24px; margin-top:20px;"),
         focusdist_areaoverlap_3,
-        div(class = "plot-box", imageOutput("focusdist_plot_3", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("focusdist_plot_3", width = "auto", height = "auto")),
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgdistpop_4,
-        div(class = "plot-box", imageOutput("focusdist_plot_4", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("focusdist_plot_4", width = "auto", height = "auto")),
         tags$h2("Police Patrol District Population", style = "font-size:24px; margin-top:20px;"),
         focusdist_poldist_5(input$focus_district, dist_totalpop, dist_ethnicpop, dist_ethnicperc, ethnic_label),
-        div(class = "plot-box", imageOutput("focusdist_plot_5", width = "100%", height = "500px")),
+        div(class = "plot-box", imageOutput("focusdist_plot_5", width = "auto", height = "auto")),
       )
     })
   })

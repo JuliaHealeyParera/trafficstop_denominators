@@ -24,6 +24,8 @@ source(here("code", "update_policedist_shpfiles.R"))
 source(here("code", "map_generator.R"))
 # Wrapper function called in app 
 source(here("code", "generate_report_files.R"))
+# Initialize distcalc RDS -- used for overwriting current distcalc_rds in server
+source(here("code", "initialize_distcalc_rds.R"))
 
 # Text file #1 
 source(here("code", "text.R"))
