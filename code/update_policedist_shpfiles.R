@@ -1,7 +1,7 @@
 #Initialize current police districts
 current_policedistricts <- st_read(here("data", "currpolicedist_files", "current_policedistricts.shp"))
 
-#Function for appending new file, if needed
+#Function for appending new shp file to running database, if needed
 append_shp <- function(file_name, city_name, district_var, geometry_var) {
   temp_sf <- st_read(file_name) |>
     st_transform(2264) |> 

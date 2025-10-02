@@ -1,6 +1,9 @@
 library(here)
 
 bg_dist_subset <- function(census_tbl, police_dist) {
+  #Return the intersection of: 
+    #Census block groups (no need for union b/c operation done individually)
+    #Union of patrol districts
   subset <- census_tbl[lengths(
     st_intersects(
       census_tbl$geometry, 
@@ -10,6 +13,7 @@ bg_dist_subset <- function(census_tbl, police_dist) {
   subset <- subset |>
     mutate(bg_full_area = st_area(geometry)) 
   
+  #All census block groups touching any currently relevnat patrol district 
   return(subset)
 }
 
@@ -24,7 +28,7 @@ pivot_long_tidy <- function(subset_tbl) {
 bgtbl_to_bgsf <- function(bg_tbl, poldist_sf) {
   bg_sf = bg_tbl |> 
     st_intersection(poldist_sf) |> #Areas of intersection in geometry column 
-  mutate(
+    mutate(
       intersection_area = st_area(geometry),
       bg_perc_area = intersection_area / bg_full_area,
       police_perc_area = intersection_area / policedist_full_area
