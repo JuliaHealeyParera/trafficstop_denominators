@@ -2,31 +2,36 @@ generate_analysis <- function(
     city, # city name (raleigh, charlotte, durham, etc.)
     map_unit, # "city" or "district" 
     dist_name = NULL, # if map_unit == "district", dist_name is district name
-    file = NULL, # if city is not in district_calculations, file path required
+    file_obj = NULL, # if city is not in district_calculations, file path required
     dist_name_var = NULL, # required with file, name of district name variable
     geometry_var = NULL, # required with file, name of geometry variable
     ethnic_group = "Total", # default is Total (no ethnic group, full population)
-    year = NULL # year of census data, (default is most current year available)
+    year = NULL, # year of census data, (default is most current year available),
+    append = NULL
     ) {
   
   city_lower <- str_to_lower(city)
   
   # If current police district is not in master district file, update.
   if (!(city_lower %in% current_policedistricts$city)) { 
-    if (is.null(file) | is.null(dist_name_var) | is.null(geometry_var)) {
+    if (is.null(file_obj) | is.null(dist_name_var) | is.null(geometry_var)) {
       stop("Must provide file, district name variable, and geometry variable. City is not in current list.")
     }
-    # from update_policedist_shpfiles -- automatically updates environment variables
-    append_shp(file, city_lower, dist_name_var, geometry_var)
+    police_curr <- file_obj
+    if (!is.null(append)) {
+      # from update_policedist_shpfiles -- automatically updates environment variables
+      append_shp(file_obj, city_lower, dist_name_var, geometry_var)
+    }
+  } else {
+    # Load police data and prepare for future geography calculations
+    police_curr <- current_policedistricts |>
+      filter(city == city_lower) 
   }
   
   if (map_unit == "district" & is.null(dist_name)) {
     stop("Must provide district name if selecting district-specific geometry")
   }
-  
-  # Load police data and prepare for future geography calculations
-  police_curr <- current_policedistricts |>
-    filter(city == city_lower) |>
+  police_curr <- police_curr |>
     mutate(policedist_full_area = st_area(geometry)) |>
     st_make_valid(police_curr)
   

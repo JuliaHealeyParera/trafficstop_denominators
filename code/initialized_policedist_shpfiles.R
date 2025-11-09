@@ -24,5 +24,4 @@ durham_policedist <- st_read('data/durham_files/Police_Districts.shp') |>
 curr_policedist <- rbind(charlotte_policedist, raleigh_policedist, durham_policedist)
 st_write(curr_policedist, 'data/currpolicedist_files/current_policedistricts.shp')
 
-  
 
