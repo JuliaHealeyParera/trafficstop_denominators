@@ -1062,7 +1062,7 @@ server = function(input, output, session) {
   
   
   # ---------------- Hook up: when user creates a custom report, build report_for_pdf ----------------
-  observeEvent(input$create_custom, {
+  observeEvent(input$print_custom, {
     try({
       output$report_for_pdf <- renderUI({
         # build report HTML
@@ -1075,32 +1075,80 @@ server = function(input, output, session) {
         # script will run AFTER the DOM insertion; delay gives time for layout & images
         download_script <- tags$script(HTML(
           sprintf("
-          // small delay to let Shiny insert the HTML and browser layout to complete
-          setTimeout(function(){
-            try {
-              var el = document.getElementById('report-for-pdf');
-              if(!el || el.innerHTML.trim().length===0) { 
-                console.warn('report-for-pdf empty when auto-trigger attempted');
-                return;
-              }
-              // wait until images inside are loaded (or timeout)
+          (function(){
+            var filename = '%s';
+            function waitForContent(el, timeoutMs){
+              timeoutMs = timeoutMs || 20000;
+              return new Promise(function(resolve, reject){
+                if(!el){ return reject('no-element'); }
+                if(el.innerHTML && el.innerHTML.trim().length>0){ return resolve(); }
+                var obs = new MutationObserver(function(){
+                  if(el.innerHTML && el.innerHTML.trim().length>0){
+                    obs.disconnect();
+                    resolve();
+                  }
+                });
+                obs.observe(el, { childList: true, subtree: true, characterData: true });
+                // safety timeout
+                setTimeout(function(){
+                  try{ obs.disconnect(); }catch(e){}
+                  reject('waitForContent timeout');
+                }, timeoutMs);
+              });
+            }
+          
+            function waitForImages(el, timeoutMs){
+              timeoutMs = timeoutMs || 20000;
               var imgs = Array.prototype.slice.call(el.querySelectorAll('img'));
               var promises = imgs.map(function(img){
                 return new Promise(function(resolve){
-                  if(img.complete && img.naturalWidth !== 0) return resolve();
+                  if(img.complete && img.naturalWidth !== 0){ return resolve(); }
                   function done(){ img.removeEventListener('load', done); img.removeEventListener('error', done); resolve(); }
                   img.addEventListener('load', done); img.addEventListener('error', done);
-                  setTimeout(resolve, 8000);
+                  // fallback timeout per image
+                  setTimeout(resolve, timeoutMs);
                 });
               });
-              Promise.all(promises).then(function(){
-                // final micro-delay for layout
+              return Promise.all(promises);
+            }
+          
+            function tryDownload(){
+              var el = document.getElementById('report-for-pdf');
+              if(!el){ console.warn('report-for-pdf not found'); return; }
+              // If hidden-report class present, temporarily show it for rendering
+              var hiddenCls = 'hidden-report';
+              var hadHidden = el.classList.contains(hiddenCls);
+              if(hadHidden) el.classList.remove(hiddenCls);
+              el.style.display = 'block';
+              el.style.visibility = 'visible';
+          
+              waitForContent(el, 20000).then(function(){
+                return waitForImages(el, 20000);
+              }).then(function(){
+                // tiny delay to let layout settle
                 setTimeout(function(){
-                  downloadReport('report-for-pdf', '%s');
+                  try {
+                    downloadReport('report-for-pdf', filename);
+                    // restore hidden class after some time (optional)
+                    setTimeout(function(){
+                      if(hadHidden) el.classList.add(hiddenCls);
+                    }, 500);
+                  } catch(e){
+                    console.error('downloadReport failed', e);
+                    if(hadHidden) el.classList.add(hiddenCls);
+                  }
                 }, 300);
+              }).catch(function(err){
+                console.warn('Auto-download aborted or timed out:', err);
+                // still try a last-ditch attempt
+                try {
+                  downloadReport('report-for-pdf', filename);
+                } catch(e){ console.error('final download attempt failed', e); }
+                if(hadHidden){
+                  el.classList.add(hiddenCls);
+                }
               });
-            } catch(e){ console.error('auto-download error', e); }
-          }, 450); // tune delay if needed (450-800ms)
+          })();
         ", filename)
         ))
         
