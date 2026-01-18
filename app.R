@@ -53,7 +53,6 @@ ui = fluidPage(
       text-align: center;
     }
 
-    
     .input-box .shiny-input-container {
       margin: 0 auto;       
       text-align: left; 
@@ -123,13 +122,11 @@ ui = fluidPage(
   
   div(
     class = "custom-header",
-    # Title on the left
     div(
       class = "title-container",
       h1("Police District Population Denominators", 
          style = "margin: 0; font-size: 34px; color: #333;")
     ),
-    # Logo on the right
     div(
       class = "logo-container",
       img(src = "ncemancipate_logo.png", 
@@ -138,30 +135,25 @@ ui = fluidPage(
     )
   ),
   
-  
   tabsetPanel(
     tabPanel("About this tool",
              uiOutput("introduction")
     ),
+    
     tabPanel("Pre-generated district report",
              div(class = "input-box",
                  selectInput("report_city", "Select Pre-Loaded City", 
                              c("Raleigh", "Charlotte", "Durham")),
                  uiOutput("district_name"),
-                 
                  actionButton("create_pregenerated", "Create Report", class = "btn-primary")
              ),
-             # Add loading indicator
              conditionalPanel(
                condition = "($('html').hasClass('shiny-busy'))",
                div(
                  style = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);",
                  div(
                    style = "text-align: center;",
-                   div(
-                     style = "border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;",
-                     tags$style(HTML("@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }"))
-                   ),
+                   div(class = "loading-spinner"),
                    br(),
                    h4("Generating Report...", style = "margin: 10px 0; color: #333;")
                  )
@@ -170,30 +162,30 @@ ui = fluidPage(
              br(),
              uiOutput("compositeOutput")
     ),
+    
     tabPanel("Custom report",
-       fileInput("spatial_file", "Upload Spatial Files (ZIP folder)", accept = c(".zip")), #add more later 
-       uiOutput("report_city_custom"),
-       uiOutput("district_name_var"),
-       uiOutput("geometry_name_var"),
-       uiOutput("focus_district_custom"),
-       actionButton("create_custom", "Create Report"),
-       conditionalPanel(
-         condition = "($('html').hasClass('shiny-busy'))",
-         div(
-           style = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);",
-           div(
-             style = "text-align: center;",
-             div(
-               style = "border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;",
-               tags$style(HTML("@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }"))
+             div(class = "input-box",
+                 fileInput("spatial_file", "Upload Spatial Files (ZIP folder)", accept = c(".zip")),
+                 uiOutput("report_city_custom"),
+                 uiOutput("district_name_var"),
+                 uiOutput("geometry_name_var"),
+                 uiOutput("focus_district_custom"),
+                 actionButton("create_custom", "Create Report", class = "btn-primary")
+             ),
+             conditionalPanel(
+               condition = "($('html').hasClass('shiny-busy'))",
+               div(
+                 style = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);",
+                 div(
+                   style = "text-align: center;",
+                   div(class = "loading-spinner"),
+                   br(),
+                   h4("Generating Report...", style = "margin: 10px 0; color: #333;")
+                 )
+               )
              ),
              br(),
-             h4("Generating Report...", style = "margin: 10px 0; color: #333;")
-           )
-         )
-       ),
-       br(),
-       uiOutput("compositeOutputCustom")
+             uiOutput("compositeOutputCustom")
     )
   )
 )
