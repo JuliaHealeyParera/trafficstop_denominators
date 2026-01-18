@@ -238,6 +238,7 @@ server = function(input, output, session) {
     req(input$report_city)
     
     if (input$report_city == "Raleigh") {
+      
       dist_list <- c(
         "Downtown District" = "DTD", 
         "Northeast District" = "NED", 
@@ -388,7 +389,8 @@ server = function(input, output, session) {
       to_download <- citywide$policedist_sf_df
       csv_data <- to_download[[1]] |>
         st_drop_geometry() |>
-        mutate(across(Total:Hispan_perc, function(x) round(as.numeric(x))))
+        mutate(across(W_nH_perc:Hispan_perc, ~ .x * 100)) |>
+        mutate(across(Total:Hispan, function(x) round(as.numeric(x))))
       
       write.csv(csv_data, file, row.names = FALSE)
     }
@@ -661,7 +663,8 @@ server = function(input, output, session) {
       to_download <- citywide$policedist_sf_df
       csv_data <- to_download[[1]] |>
         st_drop_geometry() |>
-        mutate(across(Total:Hispan_perc, function(x) round(as.numeric(x))))
+        mutate(across(W_nH_perc:Hispan_perc, ~ .x * 100)) |>
+        mutate(across(Total:Hispan, function(x) round(as.numeric(x))))      
       
       write.csv(csv_data, file, row.names = FALSE)
     }
