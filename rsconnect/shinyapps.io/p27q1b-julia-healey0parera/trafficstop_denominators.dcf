@@ -5,9 +5,6 @@ account: p27q1b-julia-healey0parera
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15231873
-bundleId: 10958536
+bundleId: 11461712
 url: https://juliahealeyparera.shinyapps.io/trafficstop_denominators/
 version: 1
-asMultiple: FALSE
-asStatic: FALSE
-ignoredFiles: past_code/code demos/gt example.R|past_code/example_zctas.R|past_code/old_raleigh_demo_maps.R|past_code/Raleight_trafficstop_project_scratchpad.R|past_code/wake_census_tracts.R

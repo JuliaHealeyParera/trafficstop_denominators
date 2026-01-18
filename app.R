@@ -165,7 +165,8 @@ ui = fluidPage(
     
     tabPanel("Custom report",
              div(class = "input-box",
-                 fileInput("spatial_file", "Upload Spatial Files (ZIP folder)", accept = c(".zip")),
+                 fileInput("spatial_file", "Upload Spatial Files (ZIP file with .shp or GeoJSON)", 
+                           accept = c(".zip", ".geojson", ".json")),
                  uiOutput("report_city_custom"),
                  uiOutput("district_name_var"),
                  uiOutput("geometry_name_var"),
@@ -463,11 +464,31 @@ server = function(input, output, session) {
   
   police_dist <- reactive({
     req(input$spatial_file)
-    unzip(input$spatial_file$datapath, exdir = "../data/temp_dir")
-    shp_file <- list.files("../data/temp_dir", pattern = "\\.shp$", full.names = TRUE)
-    police_dist_obj <- st_read(shp_file)
-    return(police_dist_obj)
-  })  
+    
+    ext <- tools::file_ext(input$spatial_file$datapath)
+    
+    if (ext == "zip") {
+      # Handle Zipped Shapefile
+      temp_dir <- here("temp_dir")
+      if (!dir.exists(temp_dir)) dir.create(temp_dir)
+      
+      unzip(input$spatial_file$datapath, exdir = temp_dir)
+      shp_file <- list.files(temp_dir, pattern = "\\.shp$", full.names = TRUE)
+      
+      if (length(shp_file) == 0) {
+        showNotification("No .shp file found in ZIP", type = "error")
+        return(NULL)
+      }
+      return(st_read(shp_file[1]))
+      
+    } else if (ext %in% c("geojson", "json")) {
+      return(st_read(input$spatial_file$datapath))
+      
+    } else {
+      showNotification("Please upload a .zip (Shapefile) or .geojson file", type = "error")
+      return(NULL)
+    }
+  })
   
   output$report_city_custom <- renderUI({
     nc_city_names <- read_csv(here("data", "census_data", "nc_city_names.csv"))
