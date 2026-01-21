@@ -35,6 +35,9 @@ generate_analysis <- function(
     mutate(policedist_full_area = st_area(geometry)) |>
     st_make_valid(police_curr)
   
+  police_curr <- st_transform(police_curr, crs = 2264)
+    
+  
   # ggplot #1, simple police district map. function from map_generator
   dist_str <- ifelse(is.null(dist_name), "city", dist_name)
   police_dist_map_obj <- police_district_map(police_curr, city_lower, map_unit, focus_dist = dist_name)

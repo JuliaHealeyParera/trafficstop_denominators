@@ -2,7 +2,6 @@ library(tidyverse)
 library(sf)
 library(patchwork)
 
-#TODO add folders? Create a metadata csv? Probably more efficient.
 patrol_district_tbl_nested = tibble(full_file = list.files(path = "data/patrol_districts/", 
                                                        recursive = T, pattern = "*.geojson", full.names = T)) |> 
   mutate(file_name = full_file |> basename())
@@ -22,12 +21,10 @@ patrol_district_tbl_nested
 patrol_district_sf = bind_rows(patrol_district_tbl_nested$sf)
 patrol_district_sf |> count(lea_name)
 
-# TODO need to retain / metadata of region name. Harmonize
 ggplot(patrol_district_sf, aes(fill = lea_name))+
   geom_sf()+
   facet_wrap(~lea_name)+
   theme_void()+guides(fill = "none")
-# UGH, figure out free scales
 
 get_patrol_plot = function(this_sf, this_lea){
   ggplot(data = this_sf |> filter(lea_name == this_lea))+

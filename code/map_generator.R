@@ -44,13 +44,18 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     stop("If map unit is district, focus district must be specified.")
   }
   
+  police_dist_sf <- police_dist_sf |>
+    group_by(DISTRICT) |> 
+    summarize(geometry = st_union(geometry)) |>
+    ungroup()
+  
   if (map_unit == "district") {
     police_dist_sf <- police_dist_sf |>
       mutate(
         focus_dist = case_when(
           DISTRICT == focus_dist ~ "Yes",
           TRUE ~ "No"
-        ))
+        )) 
     
     title_text <- paste0(
       "Zoom-in on ",
@@ -61,6 +66,7 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     district_var <- "focus_dist"
   } else { 
     district_var <- "DISTRICT"
+    
     police_dist_sf <- police_dist_sf |>
       mutate(num = row_number())
     
