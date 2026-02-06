@@ -463,7 +463,6 @@ server = function(input, output, session) {
   
   ############################### CUSTOM GEOMETRY ##############################
   #----------------------------------------------------------------------------#
-  
   police_dist <- reactive({
     req(input$spatial_file)
     
@@ -471,16 +470,22 @@ server = function(input, output, session) {
     
     if (ext == "zip") {
       # Handle Zipped Shapefile
-      temp_dir <- here("temp_dir")
-      if (!dir.exists(temp_dir)) dir.create(temp_dir)
+      # Create a unique temporary directory for THIS upload instance
+      temp_dir <- tempfile()
+      dir.create(temp_dir)
       
       unzip(input$spatial_file$datapath, exdir = temp_dir)
-      shp_file <- list.files(temp_dir, pattern = "\\.shp$", full.names = TRUE)
+      
+      # FIX: recursive = TRUE finds the file if it was inside a folder in the zip
+      shp_file <- list.files(temp_dir, pattern = "\\.shp$", full.names = TRUE, recursive = TRUE)
       
       if (length(shp_file) == 0) {
         showNotification("No .shp file found in ZIP", type = "error")
         return(NULL)
       }
+      
+      # If multiple shp files exist (e.g. MacOS __MACOSX artifacts), pick the first real one
+      # You might want to filter out hidden files starting with ._ if this persists
       return(st_read(shp_file[1]))
       
     } else if (ext %in% c("geojson", "json")) {
@@ -525,6 +530,7 @@ server = function(input, output, session) {
   
     dist_list_custom <- police_dist() |> 
       pull(!!sym(input$district_name_var)) |> 
+      as.character() |> 
       unique()
     
     selectInput("focus_district_custom", "Select Focus Patrol District", dist_list_custom)
