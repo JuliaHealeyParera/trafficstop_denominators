@@ -13,6 +13,7 @@ library(showtext)
 library(sysfonts)
 library(knitr)
 library(kableExtra)
+library(qdap)
 
 # Loads data and calls census API if necessary
 source(here("code", "census_data.R"))

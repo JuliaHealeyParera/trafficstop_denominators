@@ -52,9 +52,9 @@ generate_analysis <- function(
   }
   
   # Metadata
-  num_dist <- nrow(police_curr)
-  name_dist <- police_curr |> pull(DISTRICT)
- 
+  num_dist <- length(unique(police_curr$DISTRICT))
+  name_dist <- police_curr |> pull(DISTRICT) |> unique()
+
   # If user does not specify year, use currently-maintained current year
   if (is.null(year)) {
     census_year <- read_csv(here('data', 'census_data', 'census_data_metadata.csv')) |> 
@@ -99,7 +99,8 @@ generate_analysis <- function(
     police_curr,
     city_lower,
     total_bg, 
-    fully_included_bg)
+    fully_included_bg, 
+    focus_dist = dist_name)
   police_dist_census_blocks_citywide_map_name <- paste0(city_lower, '_', dist_str, '_police_dist_census_blocks_citywide_map.png')
   police_dist_census_blocks_citywide_map_path <- here('plots', city_lower, dist_str, police_dist_census_blocks_citywide_map_name)
   ggsave(police_dist_census_blocks_citywide_map_path, police_dist_census_blocks_citywide_map_obj, width = 6, height = 4, units = "in", dpi = 150, create.dir = TRUE)
@@ -155,7 +156,6 @@ generate_analysis <- function(
     "dist_pop_map_ggplot"
   )
   names(new_district_objects) <- names_master_analysis
-  
   return(new_district_objects)
 }
 

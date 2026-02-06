@@ -13,7 +13,7 @@ bg_dist_subset <- function(census_tbl, police_dist) {
   subset <- subset |>
     mutate(bg_full_area = st_area(geometry)) 
   
-  #All census block groups touching any currently relevnat patrol district 
+  #All census block groups touching any currently relevant patrol district 
   return(subset)
 }
 

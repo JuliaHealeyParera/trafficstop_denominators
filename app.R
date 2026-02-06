@@ -124,7 +124,7 @@ ui = fluidPage(
     class = "custom-header",
     div(
       class = "title-container",
-      h1("Police District Population Denominators", 
+      h1("Patrol District Population Denominators", 
          style = "margin: 0; font-size: 34px; color: #333;")
     ),
     div(
@@ -415,7 +415,7 @@ server = function(input, output, session) {
       tagList(
         tags$h1("Citywide Calculations", style = "font-size:32px; margin-top:20px;"),
         citycalc_intro_1(input$report_city, input$focus_district),
-        tags$h2("Police Districts", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol Districts", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldist_2(input$report_city, num_dist),
         div(class = "plot-box", imageOutput("calcdist_plot_1", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
@@ -427,7 +427,7 @@ server = function(input, output, session) {
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgdistpop_5,
         div(class = "plot-box", imageOutput("calcdist_plot_4", width = "auto", height = "auto")),
-        tags$h2("Police Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldistpop_6,
         div(class = "plot-box", imageOutput("calcdist_plot_5", width = "auto", height = "auto")),
         div(
@@ -440,7 +440,7 @@ server = function(input, output, session) {
                kableExtra::kable_styling("striped", full_width = FALSE)),
         br(),
         tags$h1("District-Specific Calculations", style = "font-size:32px; margin-top:20px;"),
-        tags$h2("Single Police District", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Single Patrol District", style = "font-size:24px; margin-top:20px;"),
         focusdist_intro_1(input$report_city, input$focus_district),
         div(class = "plot-box",  imageOutput("focusdist_plot_1", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
@@ -452,7 +452,7 @@ server = function(input, output, session) {
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgdistpop_4,
         div(class = "plot-box", imageOutput("focusdist_plot_4", width = "auto", height = "auto")),
-        tags$h2("Police Patrol District Population", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol District Population", style = "font-size:24px; margin-top:20px;"),
         focusdist_poldist_5(input$focus_district, dist_totalpop, dist_ethnicpop, dist_ethnicperc, ethnic_label),
         div(class = "plot-box", imageOutput("focusdist_plot_5", width = "auto", height = "auto")),
       )
@@ -689,7 +689,7 @@ server = function(input, output, session) {
       tagList(
         tags$h1("Citywide Calculations", style = "font-size:32px; margin-top:20px;"),
         citycalc_intro_1(input$report_city_custom, input$focus_district_custom),
-        tags$h2("Police Districts", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol Districts", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldist_2(input$report_city_custom, num_dist),
         div(class = "plot-box", imageOutput("calcdist_plot_1_cust", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
@@ -701,7 +701,7 @@ server = function(input, output, session) {
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_bgdistpop_5,
         div(class = "plot-box", imageOutput("calcdist_plot_4_cust", width = "auto", height = "auto")),
-        tags$h2("Police Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol District Populations", style = "font-size:24px; margin-top:20px;"),
         citycalc_poldistpop_6,
         div(class = "plot-box", imageOutput("calcdist_plot_5_cust", width = "auto", height = "auto")),
         div(
@@ -714,7 +714,7 @@ server = function(input, output, session) {
                kableExtra::kable_styling("striped", full_width = FALSE)),
         br(),
         tags$h1("District-Specific Calculations", style = "font-size:32px; margin-top:20px;"),
-        tags$h2("Single Police District", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Single Patrol District", style = "font-size:24px; margin-top:20px;"),
         focusdist_intro_1(input$report_city_custom, input$focus_district_custom),
         div(class = "plot-box",  imageOutput("focusdist_plot_1_cust", width = "auto", height = "auto")),
         tags$h2("Census Neighborhood Populations", style = "font-size:24px; margin-top:20px;"),
@@ -726,7 +726,7 @@ server = function(input, output, session) {
         tags$h2("Neighborhood-District Populations", style = "font-size:24px; margin-top:20px;"),
         focusdist_bgdistpop_4,
         div(class = "plot-box", imageOutput("focusdist_plot_4_cust", width = "auto", height = "auto")),
-        tags$h2("Police Patrol District Population", style = "font-size:24px; margin-top:20px;"),
+        tags$h2("Patrol District Population", style = "font-size:24px; margin-top:20px;"),
         focusdist_poldist_5(input$focus_district_custom, dist_totalpop, dist_ethnicpop, dist_ethnicperc, ethnic_label),
         div(class = "plot-box", imageOutput("focusdist_plot_5_cust", width = "auto", height = "auto")),
       )

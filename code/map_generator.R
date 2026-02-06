@@ -25,8 +25,7 @@ theme_times <- function() {
       text = element_text(family = "TimesNewRoman", size = 15),
       plot.title = ggtext::element_markdown(size = 15, hjust = 0.5,
                                             margin = margin(b = 5)),
-      plot.subtitle = ggtext::element_markdown(size = 10, hjust = 0.5,
-                                               margin = margin(t = 2, b = 7)),
+      plot.subtitle = element_text(size = 10, hjust = 0.5, margin = margin(t = 2, b = 7)),
       plot.margin = margin(t = 5, r = 20, b = 5, l = 20),
       legend.text = element_text(size = 10),
       legend.title = element_text(size = 10, face = "bold"),
@@ -149,7 +148,7 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
     theme_times() +
     coord_sf(clip = "off") + 
     labs(
-      title = str_wrap(paste0(
+      title = paste0(
         str_to_title(city),
         "'s census neighborhoods range from ", 
         max(total_count),
@@ -157,8 +156,8 @@ bg_population_map <- function(subset_tbl_long, city, ethnic_group) {
         min(total_count[total_count > 5]),
         " ",
         text_ethnic_group,
-        " residents."), width =  50),
-      subtitle = str_wrap("Census neighborhoods are unevenly populated.", width =  50),
+        " residents."),
+      subtitle = "Census neighborhoods are unevenly populated.",
       fill = paste0(
         if_else(
           text_ethnic_group == "total", 
@@ -186,7 +185,7 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
       aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), # add threshold for simplify if too complex?
       fill = NA,
       color = 'black', 
-      linewidth = .5) + 
+      linewidth = .3) + 
     scale_fill_distiller(
       palette = "Greens",
       direction = 1, 
@@ -197,13 +196,13 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
       title = str_wrap(paste0(
         str_to_title(city),
         "'s ",
-        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' district touches ') else 'police districts touch ',
+        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' touches ') else 'police districts touch ',
         total_bg, 
         " census neighborhoods."), width =  50), 
       subtitle = str_wrap(
         paste0(
           fully_included_bg, 
-        " of these neighborhoods are fully in the district."), width =  50),
+        " of these neighborhoods are fully in the district.")),
       fill = "% of block group in district")
   
   return(police_dist_census_blocks_citywide)
@@ -221,7 +220,7 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
       aes(geometry = st_simplify(geometry, preserveTopology = TRUE, dTolerance = 300)), 
       fill = NA, 
       color = 'black', 
-      linewidth = .5) + 
+      linewidth = .3) + 
     scale_fill_distiller(palette = "Blues", direction = 1) + 
     coord_sf(clip="off") +
     theme_times() +
@@ -231,7 +230,7 @@ resident_intersection_map <- function(all_bg_overlapping_dist, police_dist, city
         else "A neighborhood containing a district boundary line will contribute to\nmultiple patrol areas.",
       subtitle = if (map_unit == "district")
         "Relatedly, large neighborhoods may contribute only a few, depending on their district overlap"
-        else "On the other hand, a neighborhood within district boundary lines will only contribute to\none patrol area.",
+        else "On the other hand, a neighborhood within district boundary lines will only contribute to one patrol area.",
       fill = "Num. of residents")
   
   return(swd_bg_total)
@@ -311,7 +310,7 @@ dist_population_map <- function(police_dist_sf, all_bg_overlapping_dist, city, m
       str_to_title(city),
       "'s ",
       str_to_title(dist_name), 
-      " patrol district has ", 
+      " has ", 
       prettyNum(num_res, big.mark = ','), 
       ' ', 
       if (text_ethnic_group == 'total') text_ethnic_group else paste0(' ', text_ethnic_group), 

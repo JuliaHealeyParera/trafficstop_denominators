@@ -1,2 +1,3 @@
 year,date_added,status,nc_bg_sf_path,acs_data_tbl_path
-2022,2025-08-20,current,data/census_data/2022/nc_bg_sf_2022.shp,data/census_data/2022/acs_data_tbl_2022.shp
+2022,2025-08-20,deprecated,data/census_data/2022/nc_bg_sf_2022.shp,data/census_data/2022/acs_data_tbl_2022.shp
+2023,2026-01-27,current,data/census_data/2023/nc_bg_sf_2023.shp,data/census_data/2023/acs_data_tbl_2023.shp

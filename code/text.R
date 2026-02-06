@@ -71,7 +71,7 @@ citycalc_intro_1 <- function(city_name, district_name) {
   str_to_title(city_name),
   ". We can then zoom in to a single district, ",
   str_to_title(district_name),
-  ", to better understand the results."
+  ", to better understand the results. The below numbers are drawn from the 2019 - 2023 5-year American Community Survey (U.S. Census), as it is the most comprehensive recent population estimate."
   )
   return(ret)
 }
@@ -81,17 +81,17 @@ citycalc_poldist_2 <- function(city_name, num_dist) {
     "The entire city of ",
     str_to_title(city_name),
     " has ",
-    num_dist, 
-    " police districts, all of which are made up of one or more complicated polygons." 
+    if_else(num_dist < 10, replace_number(num_dist), toString(num_dist)), 
+    " patrol districts, all of which are made up of one or more complicated polygons." 
   )
   return(ret)
 }
 
-citycalc_bgpop_3 <- "Independently of overlapping police districts, each census neighborhood has a certain population. This population includes individuals of various racial and age groups. Because neighborhoods are shaped a certain way because of a variety of factors, they are unevenly populated. One neighborhood may have several thousand residents, while another may have only a few hundred."
+citycalc_bgpop_3 <- "Independently of overlapping patrol districts, each census neighborhood has a certain population. This population includes individuals of various racial and age groups. Because neighborhoods are shaped a certain way because of a variety of factors, they are unevenly populated. One neighborhood may have several thousand residents, while another may have only a few hundred."
 
-citycalc_areaoverlap_4 <- "In order to calculate the populations of each police district, we refer to smaller census neighborhoods. While we can overlay census neighborhoods with our police district, the geometries are not easily relatable. Some census neighborhoods, which are fully within the district borders, have 100% of their area within the district. However, many more are only partially in the district; these neighborhoods can either have very minimal area overlap (ex. 5%) or quite a lot (80%). Thus, in order to accurately calculate the number of residents within a district from a given census neighborhood, we calculate the area overlap between each neighborhood and the district."
+citycalc_areaoverlap_4 <- "In order to calculate the populations of each patrol district, we refer to smaller census neighborhoods. While we can overlay census neighborhoods with our patrol district, the geometries are not easily relatable. Some census neighborhoods, which are fully within the district borders, have 100% of their area within the district. However, many more are only partially in the district; these neighborhoods can either have very minimal area overlap (ex. 5%) or quite a lot (80%). Thus, in order to accurately calculate the number of residents within a district from a given census neighborhood, we calculate the area overlap between each neighborhood and the district."
 
-citycalc_bgdistpop_5 <- "Using this area overlap, we calculate the number of residents in each census block that live in each police district. These values are directly representative of population density within a given census block and its geographical overlap with neighboring patrol areas."
+citycalc_bgdistpop_5 <- "Using this area overlap, we calculate the number of residents in each census block that live in each patrol district. These values are directly representative of population density within a given census block and its geographical overlap with neighboring patrol areas."
 
 citycalc_poldistpop_6 <- "By aggregating each of these individual populations, we can calculate the populations and relevant demographics of each patrol area."
 
@@ -113,15 +113,15 @@ focusdist_bgpop_2 <- "As with our citywide calculations, we begin with each cens
  
 focusdist_areaoverlap_3 <- "Our second step, as in the citywide calculations, is to calculate the area overlap for each census neighborhood. Because of the irregular shape of some patrol districts, this may include neighborhoods with less than 10% of their geographic area overlapping with the patrol districts."
 
-focusdist_bgdistpop_4 <- "To calculate the number of residents from a given census neighborhoods that are included in the relevant police district, we information from both of the prior maps: total number of neighborhood residents and percent overlap with the district. By multiplying these values, we calculate the number of residents that each neighborhood contributes to the larger district population."
+focusdist_bgdistpop_4 <- "To calculate the number of residents from a given census neighborhoods that are included in the relevant patrol district, we information from both of the prior maps: total number of neighborhood residents and percent overlap with the district. By multiplying these values, we calculate the number of residents that each neighborhood contributes to the larger district population."
 
 focusdist_poldist_5 <- function(dist_name, dist_totalpop, dist_ethnicpop, dist_ethnicperc, ethnic_group = "Black") {
   paste0(
     "Using each neighborhood’s individual resident population that is part of the district, we can calculate the full district population. For the ",
     str_to_title(dist_name),
-    " police district, that number is ",
+    " patrol district, that number is ",
     dist_totalpop,
-    ". Since each census neighborhood contains population counts at the racial and ethnic level, we can also estimate the racial makeup of each police district. For example, ",
+    ". Since each census neighborhood contains population counts at the racial and ethnic level, we can also estimate the racial makeup of each patrol district. For example, ",
     dist_ethnicpop,
     " (",
     dist_ethnicperc,
@@ -131,7 +131,7 @@ focusdist_poldist_5 <- function(dist_name, dist_totalpop, dist_ethnicpop, dist_e
   )
 }
 
-conclusion_technical_1 <- "The findings presented in this report detail the estimated residential populations of select police districts in North Carolina. As previously mentioned, these estimates are calculated using the American Community Survey block groups. Block groups are not the smallest unit of geographical measurement that the census offers–as such, these estimates operate on certain assumptions about population distribution. 
+conclusion_technical_1 <- "The findings presented in this report detail the estimated residential populations of select patrol districts in North Carolina. As previously mentioned, these estimates are calculated using the American Community Survey block groups. Block groups are not the smallest unit of geographical measurement that the census offers–as such, these estimates operate on certain assumptions about population distribution. 
 This report opted to use block groups because the data on their counts is more recent. ACS produces running averages in five-year blocks. The values used for this assessment are thus averages from the years 2020-2023. While using the more granular blocks provided by the decennial census would be ideal, this should only be done in the first two years following the full-fledged census data collection. In using block groups, we assume that the demographic groups in each area are equally distributed. This assumption allows us to directly jump from the proportion of area overlap to the proportion of block group population. This is an assumption that should be noted but not obsessed over, as block groups are geographically small enough that they do not tend to encompass multiple ethnic neighborhoods in one area."
 
 conclusion_judicial_2 <- 'The application of district-level population benchmarks enables a structured comparison between those benchmarks and traffic stop data reported by LEAs and officers. These comparisons assist courts in evaluating whether officer enforcement patterns reflect disparities sufficient to establish a prima facie case of selective enforcement.
