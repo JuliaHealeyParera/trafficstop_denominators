@@ -59,7 +59,7 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     title_text <- paste0(
       "Zoom-in on ",
       str_to_title(city),
-      " police district: ",
+      " patrol district: ",
       str_to_title(focus_dist)
     )
     district_var <- "focus_dist"
@@ -72,8 +72,8 @@ police_district_map <- function(police_dist_sf, city, map_unit, focus_dist = NUL
     title_text <- paste0(
       str_to_title(city), 
       " has ", 
-      nrow(police_dist_sf), 
-      " police district", 
+      if_else(nrow(police_dist_sf) < 10, replace_number(nrow(police_dist_sf)), toString(nrow(police_dist_sf))), 
+      " patrol district", 
       if_else(
         nrow(police_dist_sf) > 1,
         's.',
@@ -196,7 +196,7 @@ area_intersection_map <- function(all_bg_overlapping_dist, police_dist, city, to
       title = str_wrap(paste0(
         str_to_title(city),
         "'s ",
-        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' touches ') else 'police districts touch ',
+        if (!is.null(focus_dist)) paste0(str_to_title(focus_dist), ' touches ') else 'patrol districts touch ',
         total_bg, 
         " census neighborhoods."), width =  50), 
       subtitle = str_wrap(
